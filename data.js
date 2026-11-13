@@ -55,6 +55,8 @@ window.SITE = {
       { id: "8bYknFcSNQM" }
     ],
     explainers: [
+      { id: "YxPlcyfCnXg", title: "Why is Sunday a day off?" },
+      { id: "SZu2KrBUZ4c", title: "Why is meat not sold on Tuesdays and Wednesdays?" },
       { id: "wQBU1x1roho" }
     ]
   },
