@@ -88,83 +88,143 @@
 </section>
 <section id="game-section">
   <div class="wrap">
-    <div class="section-title"><h2><span class="jab">Take a break: Punch the Fake News</span></h2><span class="tag">30 seconds</span></div>
-    <div class="card" id="pg">
+    <div class="section-title"><h2><span class="jab">Take a break: Snake</span></h2><span class="tag">Swipe or use arrow keys</span></div>
+    <div class="card" id="sn">
       <style>
-        #pg{max-width:520px;margin:0 auto;text-align:center;user-select:none;-webkit-user-select:none}
-        #pg .pg-bar{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
-        #pg .pg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;touch-action:manipulation}
-        #pg .pg-cell{aspect-ratio:1/1;background:var(--paper);border:3px solid var(--ink);border-radius:12px;font-family:"Archivo Black",Impact,sans-serif;font-size:clamp(.8rem,3.2vw,1.1rem);line-height:1.1;padding:4px;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
-        #pg .pg-cell.real{background:var(--yellow);box-shadow:3px 3px 0 var(--ink);transform:scale(1.03)}
-        #pg .pg-cell.fake{background:var(--red);color:#fff;box-shadow:3px 3px 0 var(--ink);transform:scale(1.03)}
-        #pg .pg-cell.hit{background:#5bd27a}
-        #pg .pg-cell.miss{background:#999}
-        #pg .pg-cell span{font-size:1.6em}
-        #pg .pg-msg{margin:12px 0 0;font-weight:600;min-height:1.6em}
-        #pg .btn{margin-top:10px}
+        #sn{max-width:360px;margin:0 auto;text-align:center;user-select:none;-webkit-user-select:none}
+        #sn .sn-bar{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
+        #sn .sn-wrap{position:relative;width:100%;max-width:300px;margin:0 auto}
+        #sn canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;background:var(--paper);border:3px solid var(--ink);border-radius:10px;touch-action:none}
+        #sn .sn-over{position:absolute;inset:3px;border-radius:7px;background:rgba(255,248,231,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px}
+        #sn .sn-over p{margin:0 0 6px;font-weight:700}
+        #sn .sn-over .btn{margin-top:6px;padding:8px 18px}
+        #sn .sn-pad{display:none;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,56px);gap:8px;justify-content:center;margin-top:14px}
+        #sn .sn-pad button{border:3px solid var(--ink);background:var(--yellow);border-radius:12px;font-size:1.4rem;font-weight:700;box-shadow:3px 3px 0 var(--ink);touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+        #sn .sn-pad button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+        #sn .sn-pad .up{grid-column:2;grid-row:1}
+        #sn .sn-pad .left{grid-column:1;grid-row:2}
+        #sn .sn-pad .down{grid-column:2;grid-row:2}
+        #sn .sn-pad .right{grid-column:3;grid-row:2}
+        @media (hover:none) and (pointer:coarse){#sn .sn-pad{display:grid}}
+        #sn .sn-hint{margin:10px 0 0;font-size:.85rem;font-weight:600}
       </style>
-      <div class="pg-bar"><span>Score: <b id="pg-score">0</b></span><span>Time: <b id="pg-time">30</b></span><span>Best: <b id="pg-best">0</b></span></div>
-      <div class="pg-grid" id="pg-grid"></div>
-      <p class="pg-msg" id="pg-msg">Tap the yellow BREAKING stories. Don't touch the red FAKE ones (-2).</p>
-      <button class="btn" id="pg-start" type="button">Start</button>
+      <div class="sn-bar"><span>Score: <b id="sn-score">0</b></span><span>Best: <b id="sn-best">0</b></span></div>
+      <div class="sn-wrap">
+        <canvas id="sn-canvas" width="300" height="300" aria-label="Snake game board"></canvas>
+        <div class="sn-over" id="sn-over"><p id="sn-msg">Eat the red boxing gloves. Don't hit the wall or yourself.</p><button class="btn" id="sn-start" type="button">Start</button></div>
+      </div>
+      <div class="sn-pad" id="sn-pad">
+        <button class="up" type="button" data-d="up" aria-label="Up">&#9650;</button>
+        <button class="left" type="button" data-d="left" aria-label="Left">&#9664;</button>
+        <button class="down" type="button" data-d="down" aria-label="Down">&#9660;</button>
+        <button class="right" type="button" data-d="right" aria-label="Right">&#9654;</button>
+      </div>
+      <p class="sn-hint">Arrow keys / WASD on PC. Swipe or use the buttons on mobile.</p>
     </div>
   </div>
 </section>
 <script>
 (function(){
-  var grid=document.getElementById("pg-grid");
-  if(!grid)return;
-  var scoreEl=document.getElementById("pg-score"),timeEl=document.getElementById("pg-time"),bestEl=document.getElementById("pg-best"),msg=document.getElementById("pg-msg"),startBtn=document.getElementById("pg-start");
-  var cells=[],score=0,best=0,left=30,running=false,tick,spawn,state=[];
-  try{best=parseInt(localStorage.getItem("pg-best"),10)||0}catch(e){}
+  var cv=document.getElementById("sn-canvas");
+  if(!cv)return;
+  var ctx=cv.getContext("2d"),N=15,S=cv.width/N;
+  var scoreEl=document.getElementById("sn-score"),bestEl=document.getElementById("sn-best"),over=document.getElementById("sn-over"),msg=document.getElementById("sn-msg"),startBtn=document.getElementById("sn-start");
+  var DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+  var snake,dir,queue,food,score,best=0,timer=null,running=false,speed;
+  try{best=parseInt(localStorage.getItem("sn-best"),10)||0}catch(e){}
   bestEl.textContent=best;
-  for(var i=0;i<9;i++){(function(i){
-    var c=document.createElement("button");c.type="button";c.className="pg-cell";c.setAttribute("aria-label","cell "+(i+1));
-    c.addEventListener("pointerdown",function(e){e.preventDefault();hit(i)});
-    grid.appendChild(c);cells.push(c);state.push(null);
-  })(i)}
-  function clear(i){var c=cells[i];c.className="pg-cell";c.innerHTML="";if(state[i]){clearTimeout(state[i].t);}state[i]=null}
-  function show(i){
-    var fake=Math.random()<0.28;
-    var c=cells[i];
-    c.className="pg-cell "+(fake?"fake":"real");
-    c.innerHTML=fake?'<span>❌</span>FAKE':'<span>🥊</span>BREAKING';
-    var life=Math.max(550,1100-(30-left)*18);
-    state[i]={fake:fake,t:setTimeout(function(){clear(i)},life)};
+
+  function placeFood(){
+    var free=[],i,j;
+    for(i=0;i<N;i++)for(j=0;j<N;j++){
+      var on=false;for(var k=0;k<snake.length;k++)if(snake[k][0]===i&&snake[k][1]===j){on=true;break}
+      if(!on)free.push([i,j]);
+    }
+    if(!free.length){food=null;return}
+    food=free[Math.floor(Math.random()*free.length)];
   }
-  function hit(i){
-    if(!running||!state[i])return;
-    var s=state[i],c=cells[i];
-    clearTimeout(s.t);
-    score+=s.fake?-2:1;if(score<0)score=0;
-    scoreEl.textContent=score;
-    c.className="pg-cell "+(s.fake?"miss":"hit");
-    state[i]=null;
-    setTimeout(function(){if(!state[i]){c.className="pg-cell";c.innerHTML=""}},180);
-    if(navigator.vibrate&&s.fake)navigator.vibrate(60);
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle="rgba(0,0,0,.05)";
+    for(var i=0;i<N;i++)for(var j=0;j<N;j++)if((i+j)%2===0)ctx.fillRect(i*S,j*S,S,S);
+    if(food){
+      ctx.font=(S*0.9)+"px serif";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.fillText("🥊",food[0]*S+S/2,food[1]*S+S/2+1);
+    }
+    for(var k=snake.length-1;k>=0;k--){
+      var s=snake[k];
+      ctx.fillStyle=k===0?"#d7263d":"#161616";
+      var p=k===0?1:2;
+      ctx.beginPath();
+      if(ctx.roundRect)ctx.roundRect(s[0]*S+p,s[1]*S+p,S-2*p,S-2*p,5);else ctx.rect(s[0]*S+p,s[1]*S+p,S-2*p,S-2*p);
+      ctx.fill();
+    }
   }
-  function loop(){
+  function setDir(name){
     if(!running)return;
-    var free=[];for(var i=0;i<9;i++)if(!state[i])free.push(i);
-    if(free.length)show(free[Math.floor(Math.random()*free.length)]);
-    spawn=setTimeout(loop,Math.max(280,650-(30-left)*12));
+    var last=queue.length?queue[queue.length-1]:dir;
+    var d=DIRS[name];
+    if(d[0]===-last[0]&&d[1]===-last[1])return;
+    if(d[0]===last[0]&&d[1]===last[1])return;
+    if(queue.length<2)queue.push(d);
   }
-  function end(){
-    running=false;clearInterval(tick);clearTimeout(spawn);
-    for(var i=0;i<9;i++)clear(i);
-    var text="Time! You scored "+score+".";
-    if(score>best){best=score;bestEl.textContent=best;try{localStorage.setItem("pg-best",best)}catch(e){}text+=" New best!"}
-    else if(score<10)text+=" Back to the gym.";
-    else if(score<20)text+=" Decent jab.";
-    else text+=" Pro boxer reflexes.";
-    msg.textContent=text;startBtn.textContent="Play again";startBtn.style.display="";
+  function step(){
+    if(queue.length)dir=queue.shift();
+    var h=[snake[0][0]+dir[0],snake[0][1]+dir[1]];
+    var ate=food&&h[0]===food[0]&&h[1]===food[1];
+    var body=ate?snake:snake.slice(0,-1);
+    var dead=h[0]<0||h[1]<0||h[0]>=N||h[1]>=N;
+    for(var k=0;k<body.length&&!dead;k++)if(body[k][0]===h[0]&&body[k][1]===h[1])dead=true;
+    if(dead){end();return}
+    snake.unshift(h);
+    if(ate){
+      score++;scoreEl.textContent=score;
+      placeFood();
+      speed=Math.max(70,speed-3);
+      if(!food){draw();end(true);return}
+    }else snake.pop();
+    draw();
+    timer=setTimeout(step,speed);
   }
-  startBtn.addEventListener("click",function(){
-    score=0;left=30;running=true;scoreEl.textContent=0;timeEl.textContent=30;
-    msg.textContent="Go!";startBtn.style.display="none";
-    tick=setInterval(function(){left--;timeEl.textContent=left;if(left<=0)end()},1000);
-    loop();
+  function start(){
+    snake=[[5,7],[4,7],[3,7]];dir=DIRS.right;queue=[];score=0;speed=140;
+    scoreEl.textContent=0;placeFood();draw();
+    over.style.display="none";running=true;
+    clearTimeout(timer);timer=setTimeout(step,speed);
+  }
+  function end(won){
+    running=false;clearTimeout(timer);
+    var t=won?"You filled the board!":"Game over. Score: "+score+".";
+    if(score>best){best=score;bestEl.textContent=best;try{localStorage.setItem("sn-best",best)}catch(e){}t+=" New best!"}
+    msg.textContent=t;startBtn.textContent="Play again";over.style.display="flex";
+  }
+  startBtn.addEventListener("click",start);
+
+  var keys={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",s:"down",a:"left",d:"right",W:"up",S:"down",A:"left",D:"right"};
+  document.addEventListener("keydown",function(e){
+    if(!running)return;
+    var d=keys[e.key];
+    if(d){e.preventDefault();setDir(d)}
   });
+  document.getElementById("sn-pad").addEventListener("pointerdown",function(e){
+    var b=e.target.closest("button");
+    if(b){e.preventDefault();setDir(b.getAttribute("data-d"))}
+  });
+  var tx=0,ty=0,touching=false;
+  cv.addEventListener("pointerdown",function(e){tx=e.clientX;ty=e.clientY;touching=true});
+  cv.addEventListener("pointermove",function(e){
+    if(!touching||!running)return;
+    var dx=e.clientX-tx,dy=e.clientY-ty;
+    if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
+    setDir(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"));
+    tx=e.clientX;ty=e.clientY;
+  });
+  function up(){touching=false}
+  cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);cv.addEventListener("pointerleave",up);
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden&&running){running=false;clearTimeout(timer);msg.textContent="Paused. Score: "+score;startBtn.textContent="Restart";over.style.display="flex"}
+  });
+  snake=[[5,7],[4,7],[3,7]];dir=DIRS.right;food=[10,7];draw();
 })();
 </script>
 </main>
