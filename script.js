@@ -4,7 +4,7 @@
   var nav = [
     ["index.html", "home", "Home"],
     ["about.html", "about", "About"],
-    ["work.html", "work", "Reports"],
+    ["work.html", "work", "Archive"],
     ["videos.html", "videos", "Recent Work"],
     ["events.html", "events", "Workshops"],
     ["feed.html", "feed", "Feed"],
