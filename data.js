@@ -64,7 +64,7 @@ window.SITE = {
      2. Add a line below, newest first. tag is optional: "BTS", "Work" or "Fun".
      caption is a short line shown under the photo. */
   snaps: [
-    { image: "images/snaps/snap-01.jpg", tag: "Work", caption: "Press pass on, greenery all around." }
+    { image: "images/snaps/snap-01.jpg.jpg", tag: "Work", caption: "Press pass on, greenery all around." }
   ],
 
   /* ---- "Asher liked this on YouTube" page ----
