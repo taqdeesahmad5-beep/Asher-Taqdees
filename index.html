@@ -70,7 +70,6 @@
         <li><b>Based in</b> Lahore</li>
         <li><b>Birthday</b> 29 August</li>
         <li><b>Height</b> 5'11"</li>
-        <li><b>Byline</b> Taqdees Ahmad (تقدیس احمد) at ARY News</li>
       </ul>
     </div>
   </div>
@@ -88,13 +87,14 @@
 </section>
 <section id="game-section">
   <div class="wrap">
-    <div class="section-title"><h2><span class="jab">Take a break: Snake</span></h2><span class="tag">Swipe or use arrow keys</span></div>
+    <div class="section-title"><h2><span class="jab">Take a break: Snake</span></h2><span class="tag">Eat gloves, get points</span></div>
     <div class="card" id="sn">
       <style>
-        #sn{max-width:360px;margin:0 auto;text-align:center;user-select:none;-webkit-user-select:none}
+        #sn,#sn *{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;outline:none}
+        #sn{max-width:360px;margin:0 auto;text-align:center}
         #sn .sn-bar{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
         #sn .sn-wrap{position:relative;width:100%;max-width:300px;margin:0 auto}
-        #sn canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;background:var(--paper);border:3px solid var(--ink);border-radius:10px;touch-action:none}
+        #sn canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;background:var(--paper);border:3px solid var(--ink);border-radius:10px;touch-action:none;-webkit-user-drag:none}
         #sn .sn-over{position:absolute;inset:3px;border-radius:7px;background:rgba(255,248,231,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px}
         #sn .sn-over p{margin:0 0 6px;font-weight:700}
         #sn .sn-over .btn{margin-top:6px;padding:8px 18px}
@@ -111,7 +111,7 @@
       <div class="sn-bar"><span>Score: <b id="sn-score">0</b></span><span>Best: <b id="sn-best">0</b></span></div>
       <div class="sn-wrap">
         <canvas id="sn-canvas" width="300" height="300" aria-label="Snake game board"></canvas>
-        <div class="sn-over" id="sn-over"><p id="sn-msg">Eat the red boxing gloves. Don't hit the wall or yourself.</p><button class="btn" id="sn-start" type="button">Start</button></div>
+        <div class="sn-over" id="sn-over"><p id="sn-msg">Goal: eat the red boxing glove to score a point. Each one makes you longer. Don't hit the wall or yourself.</p><button class="btn" id="sn-start" type="button">Start</button></div>
       </div>
       <div class="sn-pad" id="sn-pad">
         <button class="up" type="button" data-d="up" aria-label="Up">&#9650;</button>
@@ -127,7 +127,7 @@
 (function(){
   var cv=document.getElementById("sn-canvas");
   if(!cv)return;
-  var ctx=cv.getContext("2d"),N=15,S=cv.width/N;
+  var ctx=cv.getContext("2d"),N=12,S=cv.width/N;
   var scoreEl=document.getElementById("sn-score"),bestEl=document.getElementById("sn-best"),over=document.getElementById("sn-over"),msg=document.getElementById("sn-msg"),startBtn=document.getElementById("sn-start");
   var DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
   var snake,dir,queue,food,score,best=0,timer=null,running=false,speed;
@@ -148,8 +148,14 @@
     ctx.fillStyle="rgba(0,0,0,.05)";
     for(var i=0;i<N;i++)for(var j=0;j<N;j++)if((i+j)%2===0)ctx.fillRect(i*S,j*S,S,S);
     if(food){
-      ctx.font=(S*0.9)+"px serif";ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText("🥊",food[0]*S+S/2,food[1]*S+S/2+1);
+      var fx=food[0]*S,fy=food[1]*S,pulse=1+0.06*Math.sin(Date.now()/150);
+      ctx.save();ctx.translate(fx+S/2,fy+S/2);ctx.scale(pulse,pulse);
+      ctx.fillStyle="#161616";ctx.beginPath();ctx.arc(0,-1,S*0.46,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#d7263d";ctx.beginPath();ctx.arc(0,-1,S*0.38,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-S*0.1,-S*0.12,S*0.09,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#ffd23f";ctx.fillRect(-S*0.26,S*0.26,S*0.52,S*0.16);
+      ctx.strokeStyle="#161616";ctx.lineWidth=1.5;ctx.strokeRect(-S*0.26,S*0.26,S*0.52,S*0.16);
+      ctx.restore();
     }
     for(var k=snake.length-1;k>=0;k--){
       var s=snake[k];
@@ -186,8 +192,9 @@
     draw();
     timer=setTimeout(step,speed);
   }
+  setInterval(function(){if(running)draw()},100);
   function start(){
-    snake=[[5,7],[4,7],[3,7]];dir=DIRS.right;queue=[];score=0;speed=140;
+    snake=[[4,6],[3,6],[2,6]];dir=DIRS.right;queue=[];score=0;speed=140;
     scoreEl.textContent=0;placeFood();draw();
     over.style.display="none";running=true;
     clearTimeout(timer);timer=setTimeout(step,speed);
@@ -224,7 +231,7 @@
   document.addEventListener("visibilitychange",function(){
     if(document.hidden&&running){running=false;clearTimeout(timer);msg.textContent="Paused. Score: "+score;startBtn.textContent="Restart";over.style.display="flex"}
   });
-  snake=[[5,7],[4,7],[3,7]];dir=DIRS.right;food=[10,7];draw();
+  snake=[[4,6],[3,6],[2,6]];dir=DIRS.right;food=[8,6];draw();
 })();
 </script>
 </main>
