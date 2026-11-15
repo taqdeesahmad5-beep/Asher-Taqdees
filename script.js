@@ -241,49 +241,63 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
 })();
 
-/* ===== HOME PAGE POPUP: appears after 1 minute on the home page (once per visit) ===== */
+/* ===== REAL VISITOR BAR: shows how many people visited this page today (real counts, no made-up numbers) ===== */
 (function () {
-  if (document.body.getAttribute("data-page") !== "home") return;
-  try { if (sessionStorage.getItem("watchPopupSeen")) return; } catch (e) {}
-  var seconds = 0, shown = false;
-  var timer = setInterval(function () {
-    if (document.hidden) return;              /* only counts time while the tab is open and visible */
-    seconds++;
-    if (seconds >= 60 && !shown) { shown = true; clearInterval(timer); show(); }
-  }, 1000);
+  var page = document.body.getAttribute("data-page") || "";
+  if (!page || page === "404") return;
+  var API = "https://abacus.jasoncameron.dev", NS = "ashertaqdees-net";
+  var store = null; try { store = window.localStorage; } catch (e) {}
 
-  function show() {
-    try { sessionStorage.setItem("watchPopupSeen", "1"); } catch (e) {}
+  /* visit the site once with ?owner=1 to stop counting your own visits on that browser */
+  try { if (/[?&]owner=1/.test(location.search) && store) store.setItem("noCount", "1"); } catch (e) {}
+  var isOwner = false; try { isOwner = !!(store && store.getItem("noCount")); } catch (e) {}
+
+  var today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Karachi" });   /* YYYY-MM-DD, Pakistan time */
+  var keyToday = "day-" + page + "-" + today, keyTotal = "total-" + page;
+  var seenKey = "counted-" + page, alreadyToday = false;
+  try { alreadyToday = !!store && store.getItem(seenKey) === today; } catch (e) {}
+  var shouldCount = !isOwner && !alreadyToday;          /* one count per browser, per page, per day */
+
+  function call(kind, key) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var t = ctl ? setTimeout(function () { ctl.abort(); }, 6000) : null;
+    return fetch(API + "/" + kind + "/" + NS + "/" + key, ctl ? { signal: ctl.signal } : {})
+      .then(function (r) { if (t) clearTimeout(t); if (!r.ok) throw new Error("x"); return r.json(); })
+      .then(function (j) { if (typeof j.value !== "number") throw new Error("x"); return j.value; });
+  }
+  /* "hit" adds 1 and returns the number; "get" only reads (a missing counter is treated as 0) */
+  function read(key) { return call("get", key).catch(function () { return 0; }); }
+  var kind = shouldCount ? "hit" : "get";
+  var todayP = shouldCount ? call("hit", keyToday) : read(keyToday);
+  var totalP = shouldCount ? call("hit", keyTotal) : read(keyTotal);
+
+  Promise.all([todayP, totalP]).then(function (v) {
+    if (shouldCount) { try { store && store.setItem(seenKey, today); } catch (e) {} }
+    if (v[0] < 1) return;
+    show(v[0], v[1]);
+  }).catch(function () { /* counter unreachable: show nothing */ });
+
+  function fmt(n) { try { return n.toLocaleString("en-US"); } catch (e) { return String(n); } }
+
+  function show(td, total) {
+    var msg = td === 1
+      ? "You're today's first visitor on this page \uD83C\uDF89"
+      : "<b>" + fmt(td) + "</b> people visited this page today" + (total > td ? " &middot; <b>" + fmt(total) + "</b> visits in total" : "");
     var css = document.createElement("style");
     css.textContent =
-      ".wp-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:999;animation:wpfade .25s ease-out both}" +
-      ".wp-box{position:relative;max-width:380px;width:100%;background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:16px;box-shadow:8px 8px 0 var(--red);padding:30px 24px 24px;text-align:center;animation:wppop .35s cubic-bezier(.2,.9,.3,1.3) both}" +
-      ".wp-eyes{font-size:2.6rem;line-height:1;margin-bottom:8px}" +
-      ".wp-box h2{font-size:1.4rem;line-height:1.2;margin:0 0 10px}" +
-      ".wp-small{font-size:.95rem;margin:0 0 18px;opacity:.85}" +
-      ".wp-x{position:absolute;top:8px;right:10px;width:34px;height:34px;border:0;background:transparent;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--ink)}" +
-      "@keyframes wpfade{from{opacity:0}to{opacity:1}}@keyframes wppop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}" +
-      "@media (prefers-reduced-motion:reduce){.wp-ov,.wp-box{animation:none}}";
+      ".vb{position:fixed;left:50%;bottom:16px;transform:translate(-50%,30px);opacity:0;max-width:calc(100vw - 28px);background:var(--ink);color:var(--cream);border:3px solid var(--yellow);border-radius:14px;box-shadow:4px 4px 0 var(--red);padding:10px 38px 10px 14px;font-size:.9rem;line-height:1.35;z-index:900;transition:transform .4s cubic-bezier(.2,.9,.3,1.2),opacity .4s}" +
+      ".vb.on{transform:translate(-50%,0);opacity:1}" +
+      ".vb b{color:var(--yellow)}" +
+      ".vb button{position:absolute;top:2px;right:4px;width:30px;height:30px;border:0;background:transparent;color:var(--cream);font-size:1.3rem;line-height:1;cursor:pointer}" +
+      "@media (prefers-reduced-motion:reduce){.vb{transition:none}}";
     document.head.appendChild(css);
-
-    var ov = document.createElement("div");
-    ov.className = "wp-ov";
-    ov.innerHTML =
-      '<div class="wp-box" role="dialog" aria-modal="true" aria-labelledby="wp-title">' +
-      '<button type="button" class="wp-x" aria-label="Close">&times;</button>' +
-      '<div class="wp-eyes" aria-hidden="true">👀</div>' +
-      '<h2 id="wp-title">Asher Taqdees is Watching your activity!</h2>' +
-      '<p class="wp-small">Just kidding. Don\'t worry.</p>' +
-      '<button type="button" class="btn wp-ok">Phew, OK</button></div>';
-    document.body.appendChild(ov);
-
-    var prev = document.activeElement;
-    function close() { ov.remove(); css.remove(); document.removeEventListener("keydown", key); if (prev && prev.focus) prev.focus(); }
-    function key(e) { if (e.key === "Escape") close(); }
-    ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
-    ov.querySelector(".wp-x").addEventListener("click", close);
-    ov.querySelector(".wp-ok").addEventListener("click", close);
-    document.addEventListener("keydown", key);
-    ov.querySelector(".wp-ok").focus();
+    var bar = document.createElement("div");
+    bar.className = "vb"; bar.setAttribute("role", "status");
+    bar.innerHTML = "<span aria-hidden=\"true\">\uD83D\uDC40</span> " + msg + "<button type=\"button\" aria-label=\"Close\">&times;</button>";
+    document.body.appendChild(bar);
+    function close() { bar.classList.remove("on"); setTimeout(function () { bar.remove(); css.remove(); }, 450); }
+    bar.querySelector("button").addEventListener("click", close);
+    setTimeout(function () { bar.classList.add("on"); }, 1800);
+    setTimeout(close, 12000);
   }
 })();
