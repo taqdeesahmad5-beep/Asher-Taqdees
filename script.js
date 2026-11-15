@@ -203,3 +203,41 @@
     }, { passive: true });
   }
 })();
+
+/* ===== MOBILE MENU (3 bars): paste at the very END of script.js ===== */
+(function () {
+  function setup() {
+    var header = document.querySelector(".site-header"), wrap = header && header.querySelector(".wrap"),
+        nav = wrap && wrap.querySelector("nav");
+    if (!nav || wrap.querySelector(".mm-burger")) return;
+    var links = nav.querySelectorAll("a");
+    for (var i = 3; i < links.length; i++) links[i].classList.add("mm-extra");   /* first 3 links stay visible */
+
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "mm-burger"; btn.setAttribute("aria-label", "Open menu"); btn.setAttribute("aria-expanded", "false");
+    btn.innerHTML = "<span></span><span></span><span></span>";
+    wrap.insertBefore(btn, nav);
+    btn.addEventListener("click", function () {
+      var open = header.classList.toggle("mm-open");
+      btn.setAttribute("aria-expanded", open); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    });
+
+    var css = document.createElement("style");
+    css.textContent =
+      ".mm-burger{display:none}" +
+      "@media (max-width:760px){" +
+      ".site-header .wrap{flex-wrap:wrap}" +
+      ".mm-burger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:46px;height:42px;margin-left:auto;padding:0 10px;background:var(--red);border:3px solid var(--cream);border-radius:10px;cursor:pointer}" +
+      ".mm-burger span{display:block;height:3px;border-radius:3px;background:#fff;transition:transform .2s,opacity .2s}" +
+      ".mm-open .mm-burger span:nth-child(1){transform:translateY(8px) rotate(45deg)}" +
+      ".mm-open .mm-burger span:nth-child(2){opacity:0}" +
+      ".mm-open .mm-burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}" +
+      ".site-header nav{width:100%;flex-wrap:wrap;gap:6px;margin-top:6px}" +
+      ".site-header nav a{font-size:1rem;padding:6px 14px}" +
+      ".site-header nav a.mm-extra{display:none;flex:1 0 100%;border-radius:10px;padding:10px 14px;background:rgba(255,255,255,.08)}" +
+      ".mm-open nav a.mm-extra{display:block}" +
+      "}";
+    document.head.appendChild(css);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
+})();
