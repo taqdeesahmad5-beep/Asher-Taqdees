@@ -214,7 +214,7 @@
     var btn = document.createElement("button");
     btn.type = "button"; btn.className = "mm-burger"; btn.setAttribute("aria-label", "Open menu"); btn.setAttribute("aria-expanded", "false");
     btn.innerHTML = "<span></span><span></span><span></span>";
-    nav.appendChild(btn);
+    nav.insertBefore(btn, nav.firstChild);
     btn.addEventListener("click", function () {
       var open = header.classList.toggle("mm-open");
       btn.setAttribute("aria-expanded", open); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
@@ -226,7 +226,7 @@
       "@media (max-width:760px){" +
       ".site-header nav{width:100%;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}" +
       ".site-header nav a{font-size:.9rem;padding:5px 11px}" +
-      ".mm-burger{display:flex;order:1;margin-left:auto;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:34px;height:34px;padding:0;background:transparent;border:2px solid var(--cream);border-radius:8px;cursor:pointer}" +
+      ".mm-burger{display:flex;order:-1;margin-right:2px;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:34px;height:34px;padding:0;background:transparent;border:2px solid var(--cream);border-radius:8px;cursor:pointer}" +
       ".mm-burger span{display:block;width:16px;height:2px;border-radius:2px;background:var(--cream);transition:transform .2s,opacity .2s}" +
       ".mm-open .mm-burger{background:var(--red);border-color:var(--red)}" +
       ".mm-open .mm-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}" +
