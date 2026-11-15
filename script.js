@@ -240,3 +240,50 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
 })();
+
+/* ===== HOME PAGE POPUP: appears after 1 minute on the home page (once per visit) ===== */
+(function () {
+  if (document.body.getAttribute("data-page") !== "home") return;
+  try { if (sessionStorage.getItem("watchPopupSeen")) return; } catch (e) {}
+  var seconds = 0, shown = false;
+  var timer = setInterval(function () {
+    if (document.hidden) return;              /* only counts time while the tab is open and visible */
+    seconds++;
+    if (seconds >= 60 && !shown) { shown = true; clearInterval(timer); show(); }
+  }, 1000);
+
+  function show() {
+    try { sessionStorage.setItem("watchPopupSeen", "1"); } catch (e) {}
+    var css = document.createElement("style");
+    css.textContent =
+      ".wp-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:999;animation:wpfade .25s ease-out both}" +
+      ".wp-box{position:relative;max-width:380px;width:100%;background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:16px;box-shadow:8px 8px 0 var(--red);padding:30px 24px 24px;text-align:center;animation:wppop .35s cubic-bezier(.2,.9,.3,1.3) both}" +
+      ".wp-eyes{font-size:2.6rem;line-height:1;margin-bottom:8px}" +
+      ".wp-box h2{font-size:1.4rem;line-height:1.2;margin:0 0 10px}" +
+      ".wp-small{font-size:.95rem;margin:0 0 18px;opacity:.85}" +
+      ".wp-x{position:absolute;top:8px;right:10px;width:34px;height:34px;border:0;background:transparent;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--ink)}" +
+      "@keyframes wpfade{from{opacity:0}to{opacity:1}}@keyframes wppop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}" +
+      "@media (prefers-reduced-motion:reduce){.wp-ov,.wp-box{animation:none}}";
+    document.head.appendChild(css);
+
+    var ov = document.createElement("div");
+    ov.className = "wp-ov";
+    ov.innerHTML =
+      '<div class="wp-box" role="dialog" aria-modal="true" aria-labelledby="wp-title">' +
+      '<button type="button" class="wp-x" aria-label="Close">&times;</button>' +
+      '<div class="wp-eyes" aria-hidden="true">👀</div>' +
+      '<h2 id="wp-title">Asher Taqdees is Watching your activity!</h2>' +
+      '<p class="wp-small">Just kidding. Don\'t worry.</p>' +
+      '<button type="button" class="btn wp-ok">Phew, OK</button></div>';
+    document.body.appendChild(ov);
+
+    var prev = document.activeElement;
+    function close() { ov.remove(); css.remove(); document.removeEventListener("keydown", key); if (prev && prev.focus) prev.focus(); }
+    function key(e) { if (e.key === "Escape") close(); }
+    ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
+    ov.querySelector(".wp-x").addEventListener("click", close);
+    ov.querySelector(".wp-ok").addEventListener("click", close);
+    document.addEventListener("keydown", key);
+    ov.querySelector(".wp-ok").focus();
+  }
+})();
