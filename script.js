@@ -8,10 +8,8 @@
     ["videos.html", "videos", "Recent Work"],
     ["events.html", "events", "Workshops"],
     ["feed.html", "feed", "Feed"],
-    ["snaps.html", "snaps", "Snaps"],
     ["ask.html", "ask", "Ask Me"],
-    ["recommended.html", "recommended", "Recommended"],
-    ["liked.html", "liked", "Liked"]
+    ["recommended.html", "recommended", "Recommended"]
   ];
 
   var header = document.getElementById("site-header");
@@ -204,19 +202,19 @@
   }
 })();
 
-/* ===== MOBILE MENU (3 bars): paste at the very END of script.js ===== */
+/* ===== MOBILE MENU (3 bars): phone shows Home, About, Archive, Ask Me + a small menu button ===== */
 (function () {
+  var KEEP = ["/index.html", "/about.html", "/work.html", "/ask.html"];
   function setup() {
-    var header = document.querySelector(".site-header"), wrap = header && header.querySelector(".wrap"),
-        nav = wrap && wrap.querySelector("nav");
-    if (!nav || wrap.querySelector(".mm-burger")) return;
+    var header = document.querySelector(".site-header"), nav = header && header.querySelector("nav");
+    if (!nav || nav.querySelector(".mm-burger")) return;
     var links = nav.querySelectorAll("a");
-    for (var i = 3; i < links.length; i++) links[i].classList.add("mm-extra");   /* first 3 links stay visible */
+    for (var i = 0; i < links.length; i++) if (KEEP.indexOf(links[i].getAttribute("href")) === -1) links[i].classList.add("mm-extra");
 
     var btn = document.createElement("button");
     btn.type = "button"; btn.className = "mm-burger"; btn.setAttribute("aria-label", "Open menu"); btn.setAttribute("aria-expanded", "false");
     btn.innerHTML = "<span></span><span></span><span></span>";
-    wrap.insertBefore(btn, nav);
+    nav.appendChild(btn);
     btn.addEventListener("click", function () {
       var open = header.classList.toggle("mm-open");
       btn.setAttribute("aria-expanded", open); btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
@@ -226,17 +224,18 @@
     css.textContent =
       ".mm-burger{display:none}" +
       "@media (max-width:760px){" +
-      ".site-header .wrap{flex-wrap:wrap}" +
-      ".mm-burger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:46px;height:42px;margin-left:auto;padding:0 10px;background:var(--red);border:3px solid var(--cream);border-radius:10px;cursor:pointer}" +
-      ".mm-burger span{display:block;height:3px;border-radius:3px;background:#fff;transition:transform .2s,opacity .2s}" +
-      ".mm-open .mm-burger span:nth-child(1){transform:translateY(8px) rotate(45deg)}" +
+      ".site-header nav{width:100%;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}" +
+      ".site-header nav a{font-size:.9rem;padding:5px 11px}" +
+      ".mm-burger{display:flex;order:1;margin-left:auto;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:34px;height:34px;padding:0;background:transparent;border:2px solid var(--cream);border-radius:8px;cursor:pointer}" +
+      ".mm-burger span{display:block;width:16px;height:2px;border-radius:2px;background:var(--cream);transition:transform .2s,opacity .2s}" +
+      ".mm-open .mm-burger{background:var(--red);border-color:var(--red)}" +
+      ".mm-open .mm-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}" +
       ".mm-open .mm-burger span:nth-child(2){opacity:0}" +
-      ".mm-open .mm-burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}" +
-      ".site-header nav{width:100%;flex-wrap:wrap;gap:6px;margin-top:6px}" +
-      ".site-header nav a{font-size:1rem;padding:6px 14px}" +
-      ".site-header nav a.mm-extra{display:none;flex:1 0 100%;border-radius:10px;padding:10px 14px;background:rgba(255,255,255,.08)}" +
+      ".mm-open .mm-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}" +
+      ".site-header nav a.mm-extra{display:none;order:2;flex:1 0 100%;border-radius:10px;padding:10px 14px;font-size:1rem;background:rgba(255,255,255,.08)}" +
       ".mm-open nav a.mm-extra{display:block}" +
-      "}";
+      "}" +
+      "@media (max-width:380px){.site-header nav a{font-size:.85rem;padding:5px 9px}}";
     document.head.appendChild(css);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
