@@ -311,3 +311,11 @@ html[data-theme=formal] .timeline{border-left-width:3px}
 html[data-theme=formal] .phone,html[data-theme=formal] .photo-frame{transform:none}
 /* keyboard focus that is visible on both looks */
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+/* header: look switch button */
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.modebtn{font:inherit;font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--cream);background:transparent;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:2px 10px;line-height:1.5;cursor:pointer;white-space:nowrap;transition:background-color .15s,border-color .15s}
+.modebtn:hover{background:rgba(255,255,255,.14);border-color:var(--cream)}
+.modebtn:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+@media(min-width:801px){.site-header nav{gap:0}.site-header nav a{padding:4px 8px;font-size:.88rem}.logo{white-space:nowrap}}
+@media(min-width:801px) and (max-width:1100px){.site-header nav a{padding:4px 6px;font-size:.82rem}.modebtn{font-size:.68rem;padding:1px 8px}}

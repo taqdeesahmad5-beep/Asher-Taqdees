@@ -18,12 +18,22 @@
   if (header) {
     header.className = "site-header";
     header.innerHTML =
-      '<div class="wrap"><a class="logo" href="/">Asher <span>Taqdees</span></a><nav>' +
+      '<div class="wrap"><div class="brand"><a class="logo" href="/">Asher <span>Taqdees</span></a>' +
+      '<button type="button" class="modebtn" aria-label="Switch between the fun and formal look">Switch Mode</button></div><nav>' +
       nav.map(function (n) {
         return '<a href="/' + n[0] + '"' + (n[1] === page ? ' class="active"' : "") + ">" + n[2] + "</a>";
       }).join("") +
       "</nav></div>";
   }
+
+  var mb = document.querySelector(".modebtn");
+  if (mb) mb.addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "formal" ? "fun" : "formal";
+    try { localStorage.setItem("siteMode", next); } catch (e) {}
+    try { document.cookie = "siteMode=" + next + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
+    try { sessionStorage.setItem("siteMode", next); } catch (e) {}
+    location.reload();
+  });
 
   var footer = document.getElementById("site-footer");
   if (footer) {
