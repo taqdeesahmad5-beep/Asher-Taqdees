@@ -319,3 +319,19 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 .modebtn:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
 @media(min-width:801px){.site-header nav{gap:0}.site-header nav a{padding:4px 8px;font-size:.88rem}.logo{white-space:nowrap}}
 @media(min-width:801px) and (max-width:1100px){.site-header nav a{padding:4px 6px;font-size:.82rem}.modebtn{font-size:.68rem;padding:1px 8px}}
+
+/* header layout: logo left, links middle, Switch Mode at the far right */
+.site-header .modebtn{margin-left:auto;flex:0 0 auto}
+@media(max-width:760px){
+  .site-header .brand{order:1}
+  .site-header .modebtn{order:2;margin-left:auto}
+  .site-header nav{order:3}
+}
+
+/* ===== labels / tags: solid colour + white text, readable in both looks ===== */
+.card .label,.snap .label{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card .label.red,.snap .label.red{background:var(--red);color:#fff;border-color:var(--red)}
+html[data-theme=formal] .card .label,html[data-theme=formal] .snap .label{background:#14213d;color:#fff;border:1px solid #14213d;box-shadow:none}
+html[data-theme=formal] .card .label.red,html[data-theme=formal] .snap .label.red{background:#8c1c2b;color:#fff;border-color:#8c1c2b}
+.reveal .cue,.reveal-link .cue,html[data-theme=formal] .reveal .cue,html[data-theme=formal] .reveal-link .cue{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tag,html[data-theme=formal] .tag{background:var(--ink);color:#fff}

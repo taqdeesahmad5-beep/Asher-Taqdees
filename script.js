@@ -18,12 +18,12 @@
   if (header) {
     header.className = "site-header";
     header.innerHTML =
-      '<div class="wrap"><div class="brand"><a class="logo" href="/">Asher <span>Taqdees</span></a>' +
-      '<button type="button" class="modebtn" aria-label="Switch between the fun and formal look">Switch Mode</button></div><nav>' +
+      '<div class="wrap"><div class="brand"><a class="logo" href="/">Asher <span>Taqdees</span></a></div><nav>' +
       nav.map(function (n) {
         return '<a href="/' + n[0] + '"' + (n[1] === page ? ' class="active"' : "") + ">" + n[2] + "</a>";
       }).join("") +
-      "</nav></div>";
+      "</nav>" +
+      '<button type="button" class="modebtn" aria-label="Switch between the fun and formal look">Switch Mode</button></div>';
   }
 
   var mb = document.querySelector(".modebtn");
