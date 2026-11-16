@@ -335,3 +335,17 @@ html[data-theme=formal] .card .label,html[data-theme=formal] .snap .label{backgr
 html[data-theme=formal] .card .label.red,html[data-theme=formal] .snap .label.red{background:#8c1c2b;color:#fff;border-color:#8c1c2b}
 .reveal .cue,.reveal-link .cue,html[data-theme=formal] .reveal .cue,html[data-theme=formal] .reveal-link .cue{background:var(--ink);color:#fff;border-color:var(--ink)}
 .tag,html[data-theme=formal] .tag{background:var(--ink);color:#fff}
+
+/* ===== kicker ("Bylined as ...") : solid red + white text in both looks ===== */
+.kicker,html[data-theme=formal] .kicker{background:var(--red);color:#fff;border-color:var(--red)}
+html[data-theme=formal] .kicker{border:1px solid #8c1c2b;background:#8c1c2b;color:#fff}
+
+/* keep Switch Mode on the top row at in-between widths (tablets / small laptops) */
+@media(min-width:761px){
+  .site-header .wrap{flex-wrap:nowrap}
+  .site-header nav{flex:1 1 auto;min-width:0;justify-content:flex-end}
+}
+@media(min-width:761px) and (max-width:1000px){
+  .site-header nav a{font-size:.78rem;padding:4px 5px}
+  .site-header .modebtn{font-size:.68rem;padding:1px 8px}
+}
