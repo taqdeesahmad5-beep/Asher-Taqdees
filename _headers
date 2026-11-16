@@ -1,0 +1,3 @@
+# Cloudflare Pages: let browsers keep images for 30 days (HTML/CSS/JS stay always-fresh so edits show immediately)
+/images/*
+  Cache-Control: public, max-age=2592000

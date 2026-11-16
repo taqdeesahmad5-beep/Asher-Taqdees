@@ -107,7 +107,7 @@
     function card(v) {
       var url = "https://www.youtube.com/watch?v=" + v.id, t = v.title || titles[v.id] || "Watch on YouTube";
       return '<article class="card vcard"><a class="thumb" href="' + url + '" target="_blank" rel="noopener" aria-label="Watch on YouTube"><img loading="lazy" decoding="async" src="https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg" alt=""></a>' +
-        '<div class="body"><p class="vt">' + esc(t) + '</p><a class="btn" href="' + url + '" target="_blank" rel="noopener">' + (mode === "formal" ? "Watch on YouTube" : "Watch (popcorn optional)") + "</a></div></article>";
+        '<div class="body"><p class="vt" data-vid="' + v.id + '">' + esc(t) + '</p><a class="btn" href="' + url + '" target="_blank" rel="noopener">' + (mode === "formal" ? "Watch on YouTube" : "Watch (popcorn optional)") + "</a></div></article>";
     }
     function draw() {
       var counts = { all: vids.length };
@@ -126,19 +126,33 @@
         cur = b.getAttribute("data-c"); draw();
       });
       var todo = vids.filter(function (v) { return !v.title && !titles[v.id]; });
-      var pending = todo.length, changed = false;
-      todo.forEach(function (v) {
-        var ctl = window.AbortController ? new AbortController() : null;
-        var tm = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : null;
-        fetch("https://noembed.com/embed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.id), ctl ? { signal: ctl.signal } : {})
-          .then(function (r) { return r.json(); })
-          .then(function (j) { if (j && j.title) { titles[v.id] = j.title; cache[v.id] = j.title; changed = true; } })
-          .catch(function () {})
-          .then(function () {
-            if (tm) clearTimeout(tm);
-            if (--pending === 0 && changed) { set("ytTitles", JSON.stringify(cache)); draw(); }
-          });
-      });
+      var changed = false, next = 0, running = 0, LIMIT = 6;
+      function paint(id, t) {
+        var els = grid.querySelectorAll('.vt[data-vid="' + id + '"]');
+        for (var i = 0; i < els.length; i++) els[i].textContent = t;
+      }
+      function finish() {
+        if (changed) { set("ytTitles", JSON.stringify(cache)); draw(); }
+      }
+      function pump() {
+        while (running < LIMIT && next < todo.length) {
+          (function (v) {
+            running++;
+            var ctl = window.AbortController ? new AbortController() : null;
+            var tm = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : null;
+            fetch("https://noembed.com/embed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.id), ctl ? { signal: ctl.signal } : {})
+              .then(function (r) { return r.json(); })
+              .then(function (j) { if (j && j.title) { titles[v.id] = j.title; cache[v.id] = j.title; changed = true; paint(v.id, j.title); } })
+              .catch(function () {})
+              .then(function () {
+                if (tm) clearTimeout(tm);
+                running--;
+                if (next < todo.length) pump(); else if (running === 0) finish();
+              });
+          })(todo[next++]);
+        }
+      }
+      if (todo.length) pump();
     }
   }
 

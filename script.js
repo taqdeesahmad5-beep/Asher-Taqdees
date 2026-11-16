@@ -276,15 +276,18 @@
   }
   /* "hit" adds 1 and returns the number; "get" only reads (a missing counter is treated as 0) */
   function read(key) { return call("get", key).catch(function () { return 0; }); }
-  var kind = shouldCount ? "hit" : "get";
-  var todayP = shouldCount ? call("hit", keyToday) : read(keyToday);
-  var totalP = shouldCount ? call("hit", keyTotal) : read(keyTotal);
-
-  Promise.all([todayP, totalP]).then(function (v) {
-    if (shouldCount) { try { store && store.setItem(seenKey, today); } catch (e) {} }
-    if (v[0] < 1) return;
-    show(v[0], v[1]);
-  }).catch(function () { /* counter unreachable: show nothing */ });
+  function startCounter() {
+    var todayP = shouldCount ? call("hit", keyToday) : read(keyToday);
+    var totalP = shouldCount ? call("hit", keyTotal) : read(keyTotal);
+    Promise.all([todayP, totalP]).then(function (v) {
+      if (shouldCount) { try { store && store.setItem(seenKey, today); } catch (e) {} }
+      if (v[0] < 1) return;
+      show(v[0], v[1]);
+    }).catch(function () { /* counter unreachable: show nothing */ });
+  }
+  /* wait until the page itself has finished loading, then count (the bar appears ~2s later anyway) */
+  function whenIdle() { if (window.requestIdleCallback) requestIdleCallback(startCounter, { timeout: 3000 }); else setTimeout(startCounter, 500); }
+  if (document.readyState === "complete") whenIdle(); else window.addEventListener("load", whenIdle);
 
   function fmt(n) { try { return n.toLocaleString("en-US"); } catch (e) { return String(n); } }
 
