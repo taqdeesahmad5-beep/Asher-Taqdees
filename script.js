@@ -1,18 +1,3 @@
-/* apply the saved look instantly so Formal visitors never see a flash of the fun style */
-(function () {
-  var m = null;
-  try { m = window.localStorage.getItem("siteMode"); } catch (e) {}
-  if (!m) { try { var c = document.cookie.match(/(?:^|; )siteMode=([^;]*)/); if (c) m = decodeURIComponent(c[1]); } catch (e) {} }
-  if (!m) { try { m = window.sessionStorage.getItem("siteMode"); } catch (e) {} }
-  if (m === "formal") {
-    document.documentElement.setAttribute("data-theme", "formal");
-    var st = document.createElement("style"); st.id = "pre-theme";
-    st.textContent = "html[data-theme=formal] body{visibility:hidden}";
-    document.head.appendChild(st);
-    setTimeout(function () { var e = document.getElementById("pre-theme"); if (e) e.remove(); }, 3000);
-  }
-})();
-
 (function () {
   var page = document.body.getAttribute("data-page") || "";
 
@@ -43,10 +28,6 @@
   var footer = document.getElementById("site-footer");
   if (footer) {
     /* banner above the footer, on every page */
-    var fl = document.createElement("link");
-    fl.rel = "stylesheet";
-    fl.href = "https://fonts.googleapis.com/css2?family=Amiri&display=swap";
-    document.head.appendChild(fl);
     var bn = document.createElement("div");
     bn.className = "banner-ayah";
     bn.innerHTML = '<p lang="ar" dir="rtl">\u0648\u064E\u0647\u064F\u0648\u064E \u0639\u064E\u0644\u064E\u0649\u0670 \u0643\u064F\u0644\u0651\u0650 \u0634\u064E\u064A\u0652\u0621\u064D \u0642\u064E\u062F\u0650\u064A\u0631\u064C</p>';
@@ -177,6 +158,7 @@
   var selectors = ".section-title,.card,.pill,.timeline .item,.snap,.facts li,main section > p,main section > .btn-row";
 
   function setupReveal() {
+    if (document.documentElement.getAttribute("data-theme") === "formal") return;
     var items = document.querySelectorAll(selectors);
     if (!("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entries) {
@@ -319,8 +301,17 @@
   }
 })();
 
-/* ===== load the extra features (data2.js, then extras.js) ===== */
+/* ===== faster navigation: warm up a page when the visitor is about to tap it ===== */
 (function () {
-  function add(src, done) { var s = document.createElement("script"); s.src = src; s.onload = s.onerror = done; document.body.appendChild(s); }
-  add("/data2.js", function () { add("/extras.js", function () {}); });
+  var c = navigator.connection || {};
+  if (c.saveData || /2g/.test(c.effectiveType || "")) return;
+  var done = {};
+  function warm(e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || a.target === "_blank" || a.origin !== location.origin || a.pathname === location.pathname || done[a.pathname]) return;
+    done[a.pathname] = 1;
+    var l = document.createElement("link"); l.rel = "prefetch"; l.href = a.pathname; document.head.appendChild(l);
+  }
+  document.addEventListener("pointerover", warm, { passive: true });
+  document.addEventListener("touchstart", warm, { passive: true });
 })();

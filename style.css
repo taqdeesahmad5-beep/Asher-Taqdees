@@ -169,20 +169,16 @@ section{padding:34px 0}
 @keyframes pulse{0%,100%{scale:1}50%{scale:1.07}}
 @keyframes dotpulse{0%,100%{box-shadow:0 0 0 0 rgba(215,38,61,.55)}60%{box-shadow:0 0 0 9px rgba(215,38,61,0)}}
 
-.site-header{animation:drop .5s cubic-bezier(.2,.8,.2,1) both}
 .hero .kicker{animation:pop .6s .1s both,wiggle 5s 2s infinite}
 .hero h1{animation:rise .6s .2s both}
 .hero p.lead{animation:rise .6s .35s both}
-.hero .tag{animation:rise .6s .45s both,pulse 3s 2s ease-in-out infinite}
+.hero .tag{animation:rise .6s .45s both}
 .hero .btn-row .btn{animation:pop .5s both}
 .hero .btn-row .btn:nth-child(1){animation-delay:.55s}
 .hero .btn-row .btn:nth-child(2){animation-delay:.67s}
 .hero .btn-row .btn:nth-child(3){animation-delay:.79s}
 .photo-frame{animation:swing .8s .3s cubic-bezier(.2,.8,.2,1) both}
 .photo-frame img{animation:floaty 5s 1.2s ease-in-out infinite}
-.vcard .thumb::after{animation:pulse 2.4s ease-in-out infinite}
-.timeline .item::before{animation:dotpulse 2.6s ease-out infinite}
-.section-title .tag{animation:pulse 4s 1s ease-in-out infinite}
 
 /* scroll reveal (added by script.js) */
 .rv{opacity:0;translate:0 30px;scale:.96}
@@ -211,3 +207,107 @@ section{padding:34px 0}
 .banner-ayah{margin-top:50px;padding:18px 20px;text-align:center}
 .banner-ayah p{margin:0;font-family:"Amiri","Noto Naskh Arabic","Traditional Arabic",serif;font-size:1.6rem;line-height:1.8;color:var(--ink)}
 .banner-ayah+.site-footer{margin-top:0}
+
+/* ===== first-paint safety: header bar & page colour exist before JS runs ===== */
+html{background:var(--paper)}
+#site-header{background:var(--ink);border-bottom:5px solid var(--red);min-height:58px;position:sticky;top:0;z-index:50}
+img{max-width:100%;height:auto}
+
+/* ===== smooth page-to-page navigation (no blank/colour flash) ===== */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
+/* ===== look switcher + entrance + feature styles (moved here from extras.js so they apply at first paint) ===== */
+.ent{position:fixed;inset:0;z-index:300;display:grid;grid-template-columns:1fr 1fr;font-family:'Space Grotesk',system-ui,sans-serif}
+.ent button.side{border:0;margin:0;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer;text-align:center;transition:filter .2s,flex .2s}
+.ent .fun{background:#ffd23f;color:#161616;background-image:radial-gradient(rgba(0,0,0,.12) 2px,transparent 2px);background-size:20px 20px}
+.ent .for{background:#14213d;color:#f5f5f0}
+.ent .side .big{font-size:4rem;line-height:1}
+.ent .side b{font-family:'Archivo Black',Impact,sans-serif;font-size:2.2rem;font-weight:400}
+.ent .side small{font-size:.95rem;opacity:.85;max-width:15em}
+.ent .side .go{display:inline-block;padding:10px 22px;font-weight:700;border-radius:10px;font-size:1.05rem}
+.ent .fun .go{background:#d7263d;color:#fff;border:3px solid #161616;box-shadow:4px 4px 0 #161616}
+.ent .for .go{background:#f5f5f0;color:#14213d;border:2px solid #f5f5f0;border-radius:4px}
+.ent .side:hover,.ent .side:focus-visible{filter:brightness(1.08)}
+.ent .side:focus-visible{outline:4px solid #d7263d;outline-offset:-8px}
+.ent h2{position:absolute;top:18px;left:50%;transform:translateX(-50%);margin:0;z-index:2;background:#fff8e7;color:#161616;border:3px solid #161616;box-shadow:4px 4px 0 #161616;padding:8px 18px;font-size:clamp(1.05rem,3.2vw,1.8rem);text-align:center;width:max-content;max-width:92vw;font-family:'Archivo Black',Impact,sans-serif;font-weight:400}
+.ent .vs{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#d7263d;color:#fff;border:3px solid #161616;display:flex;align-items:center;justify-content:center;font-weight:800;z-index:2}
+@media(max-width:640px){.ent{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.ent .side .big{font-size:2.6rem}.ent .side b{font-size:1.3rem}.ent button.side{padding:56px 16px 16px}.ent button.for{padding:16px}.ent h2{top:10px}}
+.totop{position:fixed;right:16px;bottom:16px;z-index:60;width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:1.3rem;line-height:1;font-weight:700;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s,transform .25s;cursor:pointer;padding:0}
+.totop.on{opacity:1;pointer-events:auto;transform:none}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat .fc{display:block;text-decoration:none;color:inherit;padding:0;overflow:hidden}
+.feat .fc img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:3px solid var(--ink)}
+.feat .fc span{display:block;padding:8px 12px;font-weight:700;font-size:.95rem}
+.feat .fc span i{font-style:normal;color:var(--red);margin-left:4px}
+@media(max-width:560px){.feat{grid-template-columns:1fr;gap:12px}.feat .fc{display:flex;align-items:center}.feat .fc img{width:42%;border-bottom:0;border-right:3px solid var(--ink);flex:none}.feat .fc span{padding:8px 12px}}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 20px}
+.tabs button{font:inherit;font-weight:700;background:var(--cream);color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:5px 16px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--red);color:#fff}
+.tabs button small{opacity:.75;font-weight:600;margin-left:4px}
+.tabs-empty{padding:20px;font-weight:600}
+.quiz{max-width:640px;margin:0 auto}
+.q-top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
+.q-bar{height:12px;border:3px solid var(--ink);border-radius:999px;background:var(--cream);overflow:hidden;margin-bottom:16px}
+.q-bar i{display:block;height:100%;background:var(--red);width:0;transition:width .3s}
+.q-opts{display:grid;gap:10px;margin:14px 0}
+.q-opt{font:inherit;font-weight:600;text-align:left;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:10px;padding:10px 14px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.q-opt:disabled{cursor:default}
+.q-opt.right{background:#b7f0b1}.q-opt.wrong{background:#ffc9d0}
+.q-fb{min-height:2.6em;font-weight:600;margin:0 0 10px}
+.q-score{font-family:'Archivo Black',Impact,sans-serif;font-size:3rem;margin:6px 0}
+.modal{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .box{background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:16px;box-shadow:8px 8px 0 var(--red);max-width:440px;width:100%;padding:26px 22px;text-align:center;animation:pop .45s ease-out}
+.modal .box h2{margin:0 0 .4em}
+.modal .emo{font-size:3rem;line-height:1}
+.modal .btn-row{justify-content:center}
+.wa{background:#25d366;color:#082b14}
+.mapbox{background:var(--cream);border:3px solid var(--ink);border-radius:12px;box-shadow:var(--shadow);padding:10px}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapbox .land{fill:#ffe9a8;stroke:var(--ink);stroke-width:3;stroke-linejoin:round}
+.pin{cursor:pointer}
+.pin circle{fill:var(--red);stroke:var(--ink);stroke-width:3;transition:r .15s}
+.pin.soon circle{fill:#9a9a9a}
+.pin:hover circle,.pin:focus circle{r:11}
+.pin:focus{outline:none}.pin:focus circle{stroke:#000;stroke-width:4}
+.pin text{font:700 15px 'Space Grotesk',system-ui,sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--cream);stroke-width:4px}
+.map-msg{min-height:3em;font-weight:600;margin:12px 0}
+.map-list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:10px}
+.lookswitch{background:none;border:0;color:var(--yellow);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0}
+html[data-theme=formal]{--paper:#f6f6f3;--cream:#ffffff;--ink:#14213d;--red:#8c1c2b;--yellow:#e7e3d6;--shadow:0 1px 6px rgba(20,33,61,.14)}
+html[data-theme=formal] body{background-image:none}
+html[data-theme=formal] h1,html[data-theme=formal] h2,html[data-theme=formal] h3,html[data-theme=formal] .logo,html[data-theme=formal] .q-score{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:0}
+html[data-theme=formal] *,html[data-theme=formal] *::before,html[data-theme=formal] *::after{animation:none!important}
+html[data-theme=formal] .card,html[data-theme=formal] .card:nth-child(odd),html[data-theme=formal] .card:nth-child(even),html[data-theme=formal] .photo-frame,html[data-theme=formal] .kicker,html[data-theme=formal] .snap{transform:none!important}
+html[data-theme=formal] .card,html[data-theme=formal] .mapbox,html[data-theme=formal] .modal .box{border:1px solid #d5d5cf;border-radius:6px}
+html[data-theme=formal] .photo-frame{border:1px solid #d5d5cf;box-shadow:0 4px 18px rgba(20,33,61,.18);border-radius:6px;overflow:hidden}
+html[data-theme=formal] .btn,html[data-theme=formal] .tabs button,html[data-theme=formal] .q-opt,html[data-theme=formal] .pill{border:1px solid var(--ink);box-shadow:none;border-radius:4px}
+html[data-theme=formal] .tabs button{border-radius:999px}
+html[data-theme=formal] .btn:hover{transform:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+html[data-theme=formal] .btn.alt{background:#e7e3d6}
+html[data-theme=formal] .site-header{border-bottom:3px solid var(--red)}
+html[data-theme=formal] .kicker{background:#e7e3d6;border:1px solid #cfcab8;box-shadow:none}
+html[data-theme=formal] .section-title .tag,html[data-theme=formal] .hero .tag{display:none}
+html[data-theme=formal] .totop{box-shadow:none;border:1px solid var(--ink)}
+html[data-theme=formal] .vcard .thumb,html[data-theme=formal] .feat .fc img{border-bottom:1px solid #d5d5cf}
+html[data-theme=formal] .mapbox .land{fill:#ece8da;stroke-width:2}
+html[data-theme=formal] .q-bar{border:1px solid var(--ink)}
+
+/* ===== FORMAL: calm, instant, no fun motion ===== */
+html[data-theme=formal],html[data-theme=formal] body{background:var(--paper)}
+html[data-theme=formal] #site-header{border-bottom:3px solid var(--red)}
+html[data-theme=formal] .rv,html[data-theme=formal] .rv.in{opacity:1!important;translate:none!important;scale:none!important;transition:none!important}
+html[data-theme=formal] .card,html[data-theme=formal] .snap{transition:box-shadow .15s}
+html[data-theme=formal] .card:hover,html[data-theme=formal] .snap:hover{box-shadow:0 4px 14px rgba(20,33,61,.16);transform:none!important}
+html[data-theme=formal] .btn{transition:background-color .15s,box-shadow .15s}
+html[data-theme=formal] .site-header nav a{transition:background-color .15s}
+html[data-theme=formal] .site-header nav a:hover,html[data-theme=formal] .site-header nav a.active{background:var(--red)}
+html[data-theme=formal] .jab:hover{animation:none}
+html[data-theme=formal] .pill{background:#ffffff!important;color:var(--ink)!important;box-shadow:none}
+html[data-theme=formal] .notice{border:1px solid #cfcab8;background:#efece1}
+html[data-theme=formal] .card .label,html[data-theme=formal] .reveal .cue,html[data-theme=formal] .reveal-link .cue{background:#e7e3d6;box-shadow:none;border-width:1px}
+html[data-theme=formal] .timeline{border-left-width:3px}
+html[data-theme=formal] .phone,html[data-theme=formal] .photo-frame{transform:none}
+/* keyboard focus that is visible on both looks */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
