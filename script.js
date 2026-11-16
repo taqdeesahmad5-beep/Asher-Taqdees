@@ -1,3 +1,18 @@
+/* apply the saved look instantly so Formal visitors never see a flash of the fun style */
+(function () {
+  var m = null;
+  try { m = window.localStorage.getItem("siteMode"); } catch (e) {}
+  if (!m) { try { var c = document.cookie.match(/(?:^|; )siteMode=([^;]*)/); if (c) m = decodeURIComponent(c[1]); } catch (e) {} }
+  if (!m) { try { m = window.sessionStorage.getItem("siteMode"); } catch (e) {} }
+  if (m === "formal") {
+    document.documentElement.setAttribute("data-theme", "formal");
+    var st = document.createElement("style"); st.id = "pre-theme";
+    st.textContent = "html[data-theme=formal] body{visibility:hidden}";
+    document.head.appendChild(st);
+    setTimeout(function () { var e = document.getElementById("pre-theme"); if (e) e.remove(); }, 3000);
+  }
+})();
+
 (function () {
   var page = document.body.getAttribute("data-page") || "";
 

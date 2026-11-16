@@ -4,9 +4,18 @@
   var page = document.body.getAttribute("data-page") || "";
   var root = document.documentElement;
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
-  var store = null; try { store = window.localStorage; } catch (e) {}
-  function get(k) { try { return store && store.getItem(k); } catch (e) { return null; } }
-  function set(k, v) { try { store && store.setItem(k, v); } catch (e) {} }
+  /* remember the visitor's choice reliably: localStorage, then cookie, then sessionStorage */
+  function get(k) {
+    try { var v = window.localStorage.getItem(k); if (v) return v; } catch (e) {}
+    try { var m = document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)")); if (m) return decodeURIComponent(m[1]); } catch (e) {}
+    try { var s2 = window.sessionStorage.getItem(k); if (s2) return s2; } catch (e) {}
+    return null;
+  }
+  function set(k, v) {
+    try { window.localStorage.setItem(k, v); } catch (e) {}
+    try { document.cookie = k + "=" + encodeURIComponent(v) + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
+    try { window.sessionStorage.setItem(k, v); } catch (e) {}
+  }
   var WA = "https://wa.me/923330447979";
 
   /* ---------- look: fun or formal ---------- */
@@ -25,7 +34,7 @@
     ".ent .fun{background:#ffd23f;color:#161616;background-image:radial-gradient(rgba(0,0,0,.12) 2px,transparent 2px);background-size:20px 20px}",
     ".ent .for{background:#14213d;color:#f5f5f0}",
     ".ent .side .big{font-size:4rem;line-height:1}",
-    ".ent .side b{font-family:'Archivo Black',Impact,sans-serif;font-size:1.7rem;font-weight:400}",
+    ".ent .side b{font-family:'Archivo Black',Impact,sans-serif;font-size:2.2rem;font-weight:400}",
     ".ent .side small{font-size:.95rem;opacity:.85;max-width:15em}",
     ".ent .side .go{display:inline-block;padding:10px 22px;font-weight:700;border-radius:10px;font-size:1.05rem}",
     ".ent .fun .go{background:#d7263d;color:#fff;border:3px solid #161616;box-shadow:4px 4px 0 #161616}",
@@ -104,6 +113,7 @@
     "html[data-theme=formal] .q-bar{border:1px solid var(--ink)}"
   ].join("\n");
   document.head.appendChild(css);
+  var pre = document.getElementById("pre-theme"); if (pre) pre.remove();
 
   /* ---------- entrance popup ---------- */
   var isBot = /bot|crawl|spider|slurp|lighthouse|pagespeed/i.test(navigator.userAgent || "");
@@ -113,8 +123,8 @@
     d.className = "ent"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-label", "How would you like to meet me?");
     d.innerHTML =
       '<h2>How would you like to meet me?</h2>' +
-      '<button type="button" class="side fun" data-m="fun"><span class="big">🥊</span><b>Keep it fun</b><small>Bold colours, jokes and a little chaos.</small><span class="go">Let’s go</span></button>' +
-      '<button type="button" class="side for" data-m="formal"><span class="big">💼</span><b>Keep it formal</b><small>Clean, calm and strictly professional.</small><span class="go">Continue</span></button>' +
+      '<button type="button" class="side fun" data-m="fun"><b>Keep it fun</b><span class="go">Let’s go</span></button>' +
+      '<button type="button" class="side for" data-m="formal"><b>Keep it formal</b><span class="go">Continue</span></button>' +
       '<span class="vs" aria-hidden="true">OR</span>';
     document.body.appendChild(d);
     document.body.style.overflow = "hidden";
