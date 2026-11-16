@@ -5,9 +5,11 @@
     ["index.html", "home", "Home"],
     ["about.html", "about", "About"],
     ["work.html", "work", "Archive"],
-    ["videos.html", "videos", "Recent Work"],
+    ["videos.html", "videos", "Reports"],
     ["events.html", "events", "Workshops"],
     ["feed.html", "feed", "Feed"],
+    ["quiz.html", "quiz", "Quiz"],
+    ["map.html", "map", "Story Map"],
     ["ask.html", "ask", "Ask Me"],
     ["recommended.html", "recommended", "Recommended"]
   ];
@@ -300,4 +302,10 @@
     setTimeout(function () { bar.classList.add("on"); }, 1800);
     setTimeout(close, 12000);
   }
+})();
+
+/* ===== load the extra features (data2.js, then extras.js) ===== */
+(function () {
+  function add(src, done) { var s = document.createElement("script"); s.src = src; s.onload = s.onerror = done; document.body.appendChild(s); }
+  add("/data2.js", function () { add("/extras.js", function () {}); });
 })();
