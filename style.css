@@ -373,3 +373,7 @@ html:root .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5c
 .slwrap::after{right:0;background:linear-gradient(to left,var(--paper),transparent)}
 .slwrap::before{left:0;background:linear-gradient(to right,var(--paper),transparent)}
 .slwrap.more-r::after,.slwrap.more-l::before{opacity:1}
+
+/* Facebook reel card: shows images/parkview-thumb.jpg if present, else a plain navy panel */
+.fb-thumb{background:#14213d!important}
+.fb-thumb .fb-note{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:#fff;font-size:.8rem;font-weight:700;letter-spacing:.04em;z-index:1}

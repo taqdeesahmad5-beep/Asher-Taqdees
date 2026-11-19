@@ -126,7 +126,11 @@ window.SITE2 = {
     "x6LlzweNpRY": "explainers",
     "0WcOTC_U6xg": "explainers",
     "92Ms-VUHetM": "investigations",
-    "8bYknFcSNQM": "explainers"
+    "8bYknFcSNQM": "explainers",
+    "hZS-gwV_JRE": "general",
+    "ZydrIrwMK18": "promotions",
+    "9uFQ_oOW0Sw": "promotions",
+    "kH1i_pJwYlg": "promotions"
   },
 
   /* words in a title that decide the tab (lower case) */
