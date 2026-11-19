@@ -408,3 +408,9 @@ body[data-page=work] .card h3,body[data-page=work] .vcard .vt,body[data-page=wor
 .tabs{gap:8px;margin:4px 0 16px}
 .tabs button{font-size:.82rem;padding:3px 11px;border-width:2px;box-shadow:2px 2px 0 var(--ink)}
 @media(max-width:600px){.tabs{gap:6px}.tabs button{font-size:.74rem;padding:2px 9px}}
+
+/* home intro highlights */
+.hl-red{color:var(--red);font-weight:700}
+.hl-black{color:#000;font-weight:800}
+/* mobile: tighter gap between "Bylined as" bar and name only */
+@media(max-width:800px){.hero .kicker{margin-bottom:4px}}
