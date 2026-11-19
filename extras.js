@@ -118,7 +118,7 @@
   }
 
   /* ---------- sliders: video rows in the Archive page scroll sideways ---------- */
-  document.querySelectorAll(".grid[data-videos]").forEach(function (g) {
+  document.querySelectorAll(page === "work" ? "main .grid" : ".grid[data-videos]").forEach(function (g) {
     if (!g.children.length) return;
     g.classList.add("slider");
     var w = document.createElement("div"); w.className = "slwrap";

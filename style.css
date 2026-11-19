@@ -365,14 +365,24 @@ html.ent-on{overflow:hidden}
 @keyframes vt-out{to{opacity:0}}
 @keyframes vt-in{from{opacity:0;transform:translateY(12px)}}
 
-/* ===== swipe sliders (Archive page sections) ===== */
+/* ===== swipe sliders (Archive page): small cards, 2 per phone screen, swipe for more ===== */
 .slwrap{position:relative}
-.grid.slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;padding:8px 6px 18px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.grid.slider>*{flex:0 0 clamp(250px,26%,310px);scroll-snap-align:start}
-@media(max-width:600px){.grid.slider>*{flex-basis:78%}}
-.sl-btn{position:absolute;top:38%;z-index:5;width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--cream);color:var(--ink);font-size:1.3rem;line-height:1;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);padding:0;transition:opacity .2s}
-.sl-btn.prev{left:-14px}.sl-btn.next{right:-14px}
+.grid.slider{display:flex;align-items:stretch;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:8px 4px 16px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.grid.slider>*{flex:0 0 calc((100% - 12px) / 2);min-width:0;scroll-snap-align:start}
+@media(min-width:601px){.grid.slider>*{flex-basis:calc((100% - 24px) / 3)}}
+@media(min-width:900px){.grid.slider>*{flex-basis:calc((100% - 36px) / 4)}}
+.slider .card{padding:12px 13px}
+.slider .vcard{padding:0}
+.slider .vcard .body{padding:9px 11px 11px;gap:6px}
+.slider .vcard .vt,.slider .card h3{font-size:.86rem;line-height:1.3;margin:0 0 .3em}
+.slider .card p{font-size:.8rem;line-height:1.4}
+.slider .card .label,.slider .vcard .cap{font-size:.62rem}
+.slider .vcard .btn,.slider .card .btn{padding:4px 10px;font-size:.74rem;border-width:2px;box-shadow:2px 2px 0 var(--ink)}
+.slider .vcard .thumb::after{font-size:1.5rem}
+.slider .vcard .thumb{border-bottom-width:2px}
+.slider .card a.watch{font-size:.8rem}
+.sl-btn{position:absolute;top:32%;z-index:5;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--cream);color:var(--ink);font-size:1.2rem;line-height:1;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);padding:0;transition:opacity .2s}
+.sl-btn.prev{left:-12px}.sl-btn.next{right:-12px}
 .sl-btn:disabled{opacity:0;pointer-events:none}
 @media(hover:none){.sl-btn{display:none}}
 html:not([data-theme=fun]) .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5cf}
-@media(min-width:641px){.ent button.side{justify-content:flex-start;padding-top:calc(50vh + 70px)}}
