@@ -218,21 +218,6 @@ img{max-width:100%;height:auto}
 @media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}
 
 /* ===== look switcher + entrance + feature styles (moved here from extras.js so they apply at first paint) ===== */
-.ent{position:fixed;inset:0;z-index:300;display:grid;grid-template-columns:1fr 1fr;font-family:'Space Grotesk',system-ui,sans-serif}
-.ent button.side{border:0;margin:0;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:inherit;cursor:pointer;text-align:center;transition:filter .2s,flex .2s}
-.ent .fun{background:#ffd23f;color:#161616;background-image:radial-gradient(rgba(0,0,0,.12) 2px,transparent 2px);background-size:20px 20px}
-.ent .for{background:#14213d;color:#f5f5f0}
-.ent .side .big{font-size:4rem;line-height:1}
-.ent .side b{font-family:'Archivo Black',Impact,sans-serif;font-size:2.2rem;font-weight:400}
-.ent .side small{font-size:.95rem;opacity:.85;max-width:15em}
-.ent .side .go{display:inline-block;padding:10px 22px;font-weight:700;border-radius:10px;font-size:1.05rem}
-.ent .fun .go{background:#d7263d;color:#fff;border:3px solid #161616;box-shadow:4px 4px 0 #161616}
-.ent .for .go{background:#f5f5f0;color:#14213d;border:2px solid #f5f5f0;border-radius:4px}
-.ent .side:hover,.ent .side:focus-visible{filter:brightness(1.08)}
-.ent .side:focus-visible{outline:4px solid #d7263d;outline-offset:-8px}
-.ent h2{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0;z-index:2;background:#fff8e7;color:#161616;border:3px solid #161616;box-shadow:4px 4px 0 #161616;border-radius:16px;padding:14px 30px;font-size:clamp(1.05rem,3.2vw,1.8rem);text-align:center;width:max-content;max-width:88vw;font-family:'Archivo Black',Impact,sans-serif;font-weight:400;line-height:1.2}
-.ent .vs{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#d7263d;color:#fff;border:3px solid #161616;display:flex;align-items:center;justify-content:center;font-weight:800;z-index:2}
-@media(max-width:640px){.ent{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.ent .side .big{font-size:2.6rem}.ent .side b{font-size:1.3rem}.ent button.side{padding:56px 16px 16px}.ent button.for{padding:16px}.ent h2{padding:14px 24px}}
 .totop{position:fixed;right:16px;bottom:16px;z-index:60;width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);font-size:1.3rem;line-height:1;font-weight:700;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s,transform .25s;cursor:pointer;padding:0}
 .totop.on{opacity:1;pointer-events:auto;transform:none}
 .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -274,86 +259,77 @@ img{max-width:100%;height:auto}
 .map-msg{min-height:3em;font-weight:600;margin:12px 0}
 .map-list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-top:10px}
 .lookswitch{background:none;border:0;color:var(--yellow);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0}
-html:not([data-theme=fun]){--paper:#f6f6f3;--cream:#ffffff;--ink:#14213d;--red:#8c1c2b;--yellow:#e7e3d6;--shadow:0 1px 6px rgba(20,33,61,.14)}
-html:not([data-theme=fun]) body{background-image:none}
-html:not([data-theme=fun]) h1,html:not([data-theme=fun]) h2,html:not([data-theme=fun]) h3,html:not([data-theme=fun]) .logo,html:not([data-theme=fun]) .q-score{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:0}
-html:not([data-theme=fun]) *,html:not([data-theme=fun]) *::before,html:not([data-theme=fun]) *::after{animation:none!important}
-html:not([data-theme=fun]) .card,html:not([data-theme=fun]) .card:nth-child(odd),html:not([data-theme=fun]) .card:nth-child(even),html:not([data-theme=fun]) .photo-frame,html:not([data-theme=fun]) .kicker,html:not([data-theme=fun]) .snap{transform:none!important}
-html:not([data-theme=fun]) .card,html:not([data-theme=fun]) .mapbox,html:not([data-theme=fun]) .modal .box{border:1px solid #d5d5cf;border-radius:6px}
-html:not([data-theme=fun]) .photo-frame{border:1px solid #d5d5cf;box-shadow:0 4px 18px rgba(20,33,61,.18);border-radius:6px;overflow:hidden}
-html:not([data-theme=fun]) .btn,html:not([data-theme=fun]) .tabs button,html:not([data-theme=fun]) .q-opt,html:not([data-theme=fun]) .pill{border:1px solid var(--ink);box-shadow:none;border-radius:4px}
-html:not([data-theme=fun]) .tabs button{border-radius:999px}
-html:not([data-theme=fun]) .btn:hover{transform:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-html:not([data-theme=fun]) .btn.alt{background:#e7e3d6}
-html:not([data-theme=fun]) .site-header{border-bottom:3px solid var(--red)}
-html:not([data-theme=fun]) .kicker{background:#e7e3d6;border:1px solid #cfcab8;box-shadow:none}
-html:not([data-theme=fun]) .section-title .tag,html:not([data-theme=fun]) .hero .tag{display:none}
-html:not([data-theme=fun]) .totop{box-shadow:none;border:1px solid var(--ink)}
-html:not([data-theme=fun]) .vcard .thumb,html:not([data-theme=fun]) .feat .fc img{border-bottom:1px solid #d5d5cf}
-html:not([data-theme=fun]) .mapbox .land{fill:#ece8da;stroke-width:2}
-html:not([data-theme=fun]) .q-bar{border:1px solid var(--ink)}
+html:root{--paper:#f6f6f3;--cream:#ffffff;--ink:#14213d;--red:#8c1c2b;--yellow:#e7e3d6;--shadow:0 1px 6px rgba(20,33,61,.14)}
+html:root body{background-image:none}
+html:root h1,html:root h2,html:root h3,html:root .logo,html:root .q-score{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:0}
+html:root *,html:root *::before,html:root *::after{animation:none!important}
+html:root .card,html:root .card:nth-child(odd),html:root .card:nth-child(even),html:root .photo-frame,html:root .kicker,html:root .snap{transform:none!important}
+html:root .card,html:root .mapbox,html:root .modal .box{border:1px solid #d5d5cf;border-radius:6px}
+html:root .photo-frame{border:1px solid #d5d5cf;box-shadow:0 4px 18px rgba(20,33,61,.18);border-radius:6px;overflow:hidden}
+html:root .btn,html:root .tabs button,html:root .q-opt,html:root .pill{border:1px solid var(--ink);box-shadow:none;border-radius:4px}
+html:root .tabs button{border-radius:999px}
+html:root .btn:hover{transform:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+html:root .btn.alt{background:#e7e3d6}
+html:root .site-header{border-bottom:3px solid var(--red)}
+html:root .kicker{background:#e7e3d6;border:1px solid #cfcab8;box-shadow:none}
+html:root .section-title .tag,html:root .hero .tag{display:none}
+html:root .totop{box-shadow:none;border:1px solid var(--ink)}
+html:root .vcard .thumb,html:root .feat .fc img{border-bottom:1px solid #d5d5cf}
+html:root .mapbox .land{fill:#ece8da;stroke-width:2}
+html:root .q-bar{border:1px solid var(--ink)}
 
 /* ===== FORMAL: calm, instant, no fun motion ===== */
-html:not([data-theme=fun]),html:not([data-theme=fun]) body{background:var(--paper)}
-html:not([data-theme=fun]) #site-header{border-bottom:3px solid var(--red)}
-html:not([data-theme=fun]) .rv,html:not([data-theme=fun]) .rv.in{opacity:1!important;translate:none!important;scale:none!important;transition:none!important}
-html:not([data-theme=fun]) .card,html:not([data-theme=fun]) .snap{transition:box-shadow .15s}
-html:not([data-theme=fun]) .card:hover,html:not([data-theme=fun]) .snap:hover{box-shadow:0 4px 14px rgba(20,33,61,.16);transform:none!important}
-html:not([data-theme=fun]) .btn{transition:background-color .15s,box-shadow .15s}
-html:not([data-theme=fun]) .site-header nav a{transition:background-color .15s}
-html:not([data-theme=fun]) .site-header nav a:hover,html:not([data-theme=fun]) .site-header nav a.active{background:var(--red)}
-html:not([data-theme=fun]) .jab:hover{animation:none}
-html:not([data-theme=fun]) .pill{background:#ffffff!important;color:var(--ink)!important;box-shadow:none}
-html:not([data-theme=fun]) .notice{border:1px solid #cfcab8;background:#efece1}
-html:not([data-theme=fun]) .card .label,html:not([data-theme=fun]) .reveal .cue,html:not([data-theme=fun]) .reveal-link .cue{background:#e7e3d6;box-shadow:none;border-width:1px}
-html:not([data-theme=fun]) .timeline{border-left-width:3px}
-html:not([data-theme=fun]) .phone,html:not([data-theme=fun]) .photo-frame{transform:none}
+html:root,html:root body{background:var(--paper)}
+html:root #site-header{border-bottom:3px solid var(--red)}
+html:root .rv,html:root .rv.in{opacity:1!important;translate:none!important;scale:none!important;transition:none!important}
+html:root .card,html:root .snap{transition:box-shadow .15s}
+html:root .card:hover,html:root .snap:hover{box-shadow:0 4px 14px rgba(20,33,61,.16);transform:none!important}
+html:root .btn{transition:background-color .15s,box-shadow .15s}
+html:root .site-header nav a{transition:background-color .15s}
+html:root .site-header nav a:hover,html:root .site-header nav a.active{background:var(--red)}
+html:root .jab:hover{animation:none}
+html:root .pill{background:#ffffff!important;color:var(--ink)!important;box-shadow:none}
+html:root .notice{border:1px solid #cfcab8;background:#efece1}
+html:root .card .label,html:root .reveal .cue,html:root .reveal-link .cue{background:#e7e3d6;box-shadow:none;border-width:1px}
+html:root .timeline{border-left-width:3px}
+html:root .phone,html:root .photo-frame{transform:none}
 /* keyboard focus that is visible on both looks */
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
 
 /* header: look switch button */
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
-.modebtn{font:inherit;font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--cream);background:transparent;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:2px 10px;line-height:1.5;cursor:pointer;white-space:nowrap;transition:background-color .15s,border-color .15s}
-.modebtn:hover{background:rgba(255,255,255,.14);border-color:var(--cream)}
-.modebtn:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
 @media(min-width:801px){.site-header nav{gap:0}.site-header nav a{padding:4px 8px;font-size:.88rem}.logo{white-space:nowrap}}
-@media(min-width:801px) and (max-width:1100px){.site-header nav a{padding:4px 6px;font-size:.82rem}.modebtn{font-size:.68rem;padding:1px 8px}}
+@media(min-width:801px) and (max-width:1100px){.site-header nav a{padding:4px 6px;font-size:.82rem}}
 
-/* header layout: logo left, links middle, Switch Mode at the far right */
-.site-header .modebtn{margin-left:auto;flex:0 0 auto}
+/* header layout: logo left, links middle, links at the right */
 @media(max-width:760px){
   .site-header .brand{order:1}
-  .site-header .modebtn{order:2;margin-left:auto}
   .site-header nav{order:3}
 }
 
 /* ===== labels / tags: solid colour + white text, readable in both looks ===== */
 .card .label,.snap .label{background:var(--ink);color:#fff;border-color:var(--ink)}
 .card .label.red,.snap .label.red{background:var(--red);color:#fff;border-color:var(--red)}
-html:not([data-theme=fun]) .card .label,html:not([data-theme=fun]) .snap .label{background:#14213d;color:#fff;border:1px solid #14213d;box-shadow:none}
-html:not([data-theme=fun]) .card .label.red,html:not([data-theme=fun]) .snap .label.red{background:#8c1c2b;color:#fff;border-color:#8c1c2b}
-.reveal .cue,.reveal-link .cue,html:not([data-theme=fun]) .reveal .cue,html:not([data-theme=fun]) .reveal-link .cue{background:var(--ink);color:#fff;border-color:var(--ink)}
-.tag,html:not([data-theme=fun]) .tag{background:var(--ink);color:#fff}
+html:root .card .label,html:root .snap .label{background:#14213d;color:#fff;border:1px solid #14213d;box-shadow:none}
+html:root .card .label.red,html:root .snap .label.red{background:#8c1c2b;color:#fff;border-color:#8c1c2b}
+.reveal .cue,.reveal-link .cue,html:root .reveal .cue,html:root .reveal-link .cue{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tag,html:root .tag{background:var(--ink);color:#fff}
 
 /* ===== kicker ("Bylined as ...") : solid red + white text in both looks ===== */
-.kicker,html:not([data-theme=fun]) .kicker{background:var(--red);color:#fff;border-color:var(--red)}
-html:not([data-theme=fun]) .kicker{border:1px solid #8c1c2b;background:#8c1c2b;color:#fff}
+.kicker,html:root .kicker{background:var(--red);color:#fff;border-color:var(--red)}
+html:root .kicker{border:1px solid #8c1c2b;background:#8c1c2b;color:#fff}
 
-/* keep Switch Mode on the top row at in-between widths (tablets / small laptops) */
+/* keep the nav on the top row at in-between widths (tablets / small laptops) */
 @media(min-width:761px){
   .site-header .wrap{flex-wrap:nowrap}
   .site-header nav{flex:1 1 auto;min-width:0;justify-content:flex-end}
 }
 @media(min-width:761px) and (max-width:1000px){
   .site-header nav a{font-size:.78rem;padding:4px 5px}
-  .site-header .modebtn{font-size:.68rem;padding:1px 8px}
+  .site-header 
 }
 
 /* ===== entrance screen: fade out, lock scroll while open ===== */
-html.ent-on{overflow:hidden}
-.ent{transition:opacity .35s ease}
-.ent.out{opacity:0;pointer-events:none}
-.ent .side:focus{outline:none}
 
 /* ===== smooth page transitions =====
    Chrome/Edge/Android: the browser cross-fades the two pages and keeps the header still.
@@ -386,7 +362,7 @@ html.ent-on{overflow:hidden}
 .sl-btn.prev{left:-12px}.sl-btn.next{right:-12px}
 .sl-btn:disabled{opacity:0;pointer-events:none}
 
-html:not([data-theme=fun]) .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5cf}
+html:root .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5cf}
 
 /* arrows stay visible on phones too; soft fade on the edge that has more cards */
 .sl-btn{width:36px;height:36px}

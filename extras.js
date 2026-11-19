@@ -1,4 +1,4 @@
-/* extras.js: entrance popup (fun/formal), back-to-top, Featured Work, Reports tabs, Quiz, Story Map */
+/* extras.js: back-to-top, Featured Work, Reports tabs, Quiz, Story Map */
 (function () {
   var D = window.SITE || {}, D2 = window.SITE2 || {};
   var page = document.body.getAttribute("data-page") || "";
@@ -18,14 +18,9 @@
   }
   var WA = "https://wa.me/923330447979";
 
-  /* the look (fun/formal) and the entrance screen live in theme.js */
-  var mode = root.getAttribute("data-theme") === "fun" ? "fun" : "formal";
-
-  if (mode === "formal") {
-    var sm = document.querySelector("#site-footer small");
-    if (sm) sm.innerHTML = "&copy; " + new Date().getFullYear() + " Asher Taqdees. All rights reserved.";
-    document.querySelectorAll(".vcard .btn").forEach(function (b) { b.textContent = "Watch on YouTube"; });
-  }
+  var sm = document.querySelector("#site-footer small");
+  if (sm) sm.innerHTML = "&copy; " + new Date().getFullYear() + " Asher Taqdees. All rights reserved.";
+  document.querySelectorAll(".vcard .btn").forEach(function (b) { b.textContent = "Watch on YouTube"; });
 
   /* ---------- back to top ---------- */
   var tt = document.createElement("button");
@@ -68,7 +63,7 @@
     function card(v) {
       var url = "https://www.youtube.com/watch?v=" + v.id, t = v.title || titles[v.id] || "Watch on YouTube";
       return '<article class="card vcard"><a class="thumb" href="' + url + '" target="_blank" rel="noopener" aria-label="Watch on YouTube"><img loading="lazy" decoding="async" src="https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg" alt=""></a>' +
-        '<div class="body"><p class="vt" data-vid="' + v.id + '">' + esc(t) + '</p><a class="btn" href="' + url + '" target="_blank" rel="noopener">' + (mode === "formal" ? "Watch on YouTube" : "Watch (popcorn optional)") + "</a></div></article>";
+        '<div class="body"><p class="vt" data-vid="' + v.id + '">' + esc(t) + '</p><a class="btn" href="' + url + '" target="_blank" rel="noopener">' + "Watch on YouTube" + "</a></div></article>";
     }
     function draw() {
       var counts = { all: vids.length };

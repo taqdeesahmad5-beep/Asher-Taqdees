@@ -22,18 +22,8 @@
       nav.map(function (n) {
         return '<a href="/' + n[0] + '"' + (n[1] === page ? ' class="active"' : "") + ">" + n[2] + "</a>";
       }).join("") +
-      "</nav>" +
-      '<button type="button" class="modebtn" aria-label="Switch between the fun and formal look">Switch Mode</button></div>';
+      "</nav></div>";
   }
-
-  var mb = document.querySelector(".modebtn");
-  if (mb) mb.addEventListener("click", function () {
-    var next = document.documentElement.getAttribute("data-theme") === "fun" ? "formal" : "fun";
-    try { localStorage.setItem("siteMode", next); } catch (e) {}
-    try { document.cookie = "siteMode=" + next + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-    try { sessionStorage.setItem("siteMode", next); } catch (e) {}
-    location.reload();
-  });
 
   var footer = document.getElementById("site-footer");
   if (footer) {
@@ -69,7 +59,7 @@
       '<div class="body">' +
       (caption ? '<span class="cap">' + esc(caption) + "</span>" : "") +
       '<p class="vt" data-vid="' + v.id + '"' + (v.title ? ' data-fixed="1"' : "") + ">" + title + "</p>" +
-      '<a class="btn" href="' + url + '" target="_blank" rel="noopener">Watch (popcorn optional)</a>' +
+      '<a class="btn" href="' + url + '" target="_blank" rel="noopener">Watch on YouTube</a>' +
       "</div></article>"
     );
   }
@@ -162,53 +152,6 @@
       );
     }).join("");
   }
-
-  /* ---------- motion for touch screens and scroll ---------- */
-  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var selectors = ".section-title,.card,.pill,.timeline .item,.snap,.facts li,main section > p,main section > .btn-row";
-
-  function setupReveal() {
-    if (document.documentElement.getAttribute("data-theme") !== "fun") return;
-    var items = document.querySelectorAll(selectors);
-    if (!("IntersectionObserver" in window)) return;
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        var el = e.target;
-        io.unobserve(el);
-        el.classList.add("in");
-        setTimeout(function () { el.classList.remove("rv", "in"); el.style.removeProperty("--d"); }, 1100);
-        if (!calm && (window.matchMedia("(hover: none)").matches)) {
-          el.querySelectorAll(".jab").forEach(function (j) { j.classList.add("punch"); setTimeout(function () { j.classList.remove("punch"); }, 600); });
-        }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-    var n = 0, lastTop = -1;
-    items.forEach(function (el) {
-      if (el.closest(".hero") || el.closest("#lightbox")) return;
-      var top = Math.round(el.getBoundingClientRect().top);
-      n = Math.abs(top - lastTop) < 40 ? n + 1 : 0;
-      lastTop = top;
-      el.style.setProperty("--d", Math.min(n, 5) * 0.08 + "s");
-      el.classList.add("rv");
-      io.observe(el);
-    });
-  }
-
-  /* video and snap cards are added by script, so reveal them after they exist */
-  setupReveal();
-
-  /* tap = punch: headings jab when tapped on touch screens (no cursor or glove on phones) */
-  if (!calm) {
-    document.addEventListener("pointerdown", function (e) {
-      if (e.pointerType !== "touch") return;
-      var j = e.target.closest && e.target.closest(".jab, h1, h2");
-      if (j) {
-        var t = j.classList.contains("jab") ? j : j.querySelector(".jab");
-        if (t) { t.classList.remove("punch"); void t.offsetWidth; t.classList.add("punch"); setTimeout(function () { t.classList.remove("punch"); }, 600); }
-      }
-    }, { passive: true });
-  }
 })();
 
 /* ===== MOBILE MENU (3 bars): phone shows Home, About, Archive, Ask Me + a small menu button ===== */
@@ -284,13 +227,7 @@
       : "<b>" + fmt(td) + "</b> people visited this page today" + (total > td ? " &middot; <b>" + fmt(total) + "</b> visits in total" : "");
   }
 
-  /* the entrance screen covers the page: wait until it is gone before showing the bar */
-  function whenFree(cb) {
-    var de = document.documentElement, on = function () { return /(^|\s)ent-on(\s|$)/.test(de.className); };
-    if (!on()) { cb(); return; }
-    var mo = new MutationObserver(function () { if (!on()) { mo.disconnect(); setTimeout(cb, 400); } });
-    mo.observe(de, { attributes: true, attributeFilter: ["class"] });
-  }
+  function whenFree(cb) { cb(); }
 
   var bar = null, dismissed = false;
   function show(td, total) {
