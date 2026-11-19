@@ -18,48 +18,9 @@
   }
   var WA = "https://wa.me/923330447979";
 
-  /* ---------- look: fun or formal ---------- */
-  var mode = get("siteMode") === "formal" ? "formal" : "fun";
-  function applyMode(m) {
-    mode = m; if (m === "formal") root.setAttribute("data-theme", "formal"); else root.removeAttribute("data-theme");
-    set("siteMode", m);
-  }
-  if (mode === "formal") root.setAttribute("data-theme", "formal");
+  /* the look (fun/formal) and the entrance screen live in theme.js */
+  var mode = root.getAttribute("data-theme") === "fun" ? "fun" : "formal";
 
-  
-  var pre = document.getElementById("pre-theme"); if (pre) pre.remove();
-
-  /* ---------- entrance popup ---------- */
-  var isBot = /bot|crawl|spider|slurp|lighthouse|pagespeed/i.test(navigator.userAgent || "");
-  if (!get("siteMode") && !isBot && page !== "404") showEntrance();
-  function showEntrance() {
-    var d = document.createElement("div");
-    d.className = "ent"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-label", "How would you like to meet me?");
-    d.innerHTML =
-      '<h2>How would you like to meet me?</h2>' +
-      '<button type="button" class="side fun" data-m="fun"><b>Keep it fun</b><span class="go">Let’s go</span></button>' +
-      '<button type="button" class="side for" data-m="formal"><b>Keep it formal</b><span class="go">Continue</span></button>' +
-      '<span class="vs" aria-hidden="true">OR</span>';
-    document.body.appendChild(d);
-    document.body.style.overflow = "hidden";
-    d.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-m]"); if (!b) return;
-      applyMode(b.getAttribute("data-m"));
-      d.remove(); document.body.style.overflow = "";
-      location.reload();
-    });
-    var first = d.querySelector(".side"); if (first) first.focus();
-  }
-
-  /* footer: switch look */
-  var fl = document.querySelector("#site-footer .links");
-  if (fl) {
-    var sw = document.createElement("button");
-    sw.type = "button"; sw.className = "lookswitch";
-    sw.textContent = mode === "formal" ? "Switch to the fun look" : "Switch to the formal look";
-    sw.addEventListener("click", function () { applyMode(mode === "formal" ? "fun" : "formal"); location.reload(); });
-    fl.appendChild(sw);
-  }
   if (mode === "formal") {
     var sm = document.querySelector("#site-footer small");
     if (sm) sm.innerHTML = "&copy; " + new Date().getFullYear() + " Asher Taqdees. All rights reserved.";
@@ -156,51 +117,50 @@
     }
   }
 
-  /* ---------- Quiz ---------- */
+  /* ---------- Quiz: 10 random questions from the bank (data2.js), different each time ---------- */
   if (page === "quiz") {
-    var Q = [
-      ["In journalism, what is the “lede” (or lead) of a story?", ["The opening paragraph that gives the key facts", "The photo caption", "The reporter’s name line", "The last sentence"], 0, "The lede opens the story with its most important facts."],
-      ["Which of these is NOT one of the classic five Ws of news?", ["Who", "Where", "Whether", "Why"], 2, "The five Ws are Who, What, When, Where and Why."],
-      ["Which mountain is the second highest in the world?", ["Makalu", "K2", "Lhotse", "Nanga Parbat"], 1, "K2, in the Karakoram range, stands at about 8,611 m."],
-      ["Which is the longest river flowing through Pakistan?", ["Ravi", "Jhelum", "Indus", "Chenab"], 2, "The Indus runs the length of the country to the Arabian Sea."],
-      ["Which planet is known as the Red Planet?", ["Venus", "Jupiter", "Mars", "Mercury"], 2, "Iron oxide (rust) on its surface gives Mars its colour."],
-      ["Complete the sentence: “___ going to win this match.”", ["Their", "There", "They’re", "Thier"], 2, "They’re = they are."],
-      ["How many rounds is a standard men’s world title boxing fight?", ["8", "10", "12", "15"], 2, "Modern world title fights are scheduled for 12 rounds."],
-      ["Which word is spelled correctly?", ["Accomodation", "Acommodation", "Accommodation", "Acomodation"], 2, "Two c’s and two m’s: accommodation."],
-      ["What is Pakistan’s national sport?", ["Cricket", "Field hockey", "Squash", "Kabaddi"], 1, "Field hockey is the official national sport, though cricket is the most popular."],
-      ["Which is the largest ocean on Earth?", ["Atlantic", "Indian", "Arctic", "Pacific"], 3, "The Pacific covers about a third of the planet."]
-    ];
-    var box = document.getElementById("quiz-root"), i = 0, score = 0;
-    var start = function () {
-      i = 0; score = 0; ask();
+    var BANK = D2.quiz || [], box = document.getElementById("quiz-root"), cur = [], i = 0, score = 0;
+    var shuffle = function (a) { for (var k = a.length - 1; k > 0; k--) { var r = Math.floor(Math.random() * (k + 1)), t = a[k]; a[k] = a[r]; a[r] = t; } return a; };
+    var pick = function () {
+      var seen = []; try { seen = JSON.parse(get("quizSeen") || "[]"); } catch (e) {}
+      var all = BANK.map(function (_, n) { return n; });
+      var fresh = all.filter(function (n) { return seen.indexOf(n) < 0; });
+      if (fresh.length < 10) { seen = []; fresh = all; }          /* bank used up: start over */
+      var chosen = shuffle(fresh.slice()).slice(0, 10);
+      set("quizSeen", JSON.stringify(seen.concat(chosen)));
+      return chosen.map(function (n) {
+        var q = BANK[n], right = q[1][q[2]], opts = shuffle(q[1].slice());
+        return { q: q[0], o: opts, c: opts.indexOf(right), e: q[3] || "" };
+      });
     };
+    var start = function () { cur = pick(); i = 0; score = 0; ask(); window.scrollTo({ top: 0 }); };
     var ask = function () {
-      var q = Q[i];
-      box.innerHTML = '<div class="card quiz"><div class="q-top"><span>Question ' + (i + 1) + ' of ' + Q.length + '</span><span>Score: ' + score + '</span></div>' +
-        '<div class="q-bar"><i style="width:' + (i / Q.length * 100) + '%"></i></div><h2 style="font-size:1.35rem">' + q[0] + '</h2><div class="q-opts">' +
-        q[1].map(function (o, k) { return '<button type="button" class="q-opt" data-k="' + k + '">' + esc(o) + "</button>"; }).join("") +
-        '</div><p class="q-fb" role="status" aria-live="polite"></p><button type="button" class="btn" id="q-next" hidden>' + (i === Q.length - 1 ? "See my score" : "Next") + "</button></div>";
+      var q = cur[i];
+      box.innerHTML = '<div class="card quiz"><div class="q-top"><span>Question ' + (i + 1) + ' of ' + cur.length + '</span><span>Score: ' + score + '</span></div>' +
+        '<div class="q-bar"><i style="width:' + (i / cur.length * 100) + '%"></i></div><h2 style="font-size:1.35rem">' + esc(q.q) + '</h2><div class="q-opts">' +
+        q.o.map(function (o, k) { return '<button type="button" class="q-opt" data-k="' + k + '">' + esc(o) + "</button>"; }).join("") +
+        '</div><p class="q-fb" role="status" aria-live="polite"></p><button type="button" class="btn" id="q-next" hidden>' + (i === cur.length - 1 ? "See my score" : "Next") + "</button></div>";
       var opts = box.querySelectorAll(".q-opt");
       opts.forEach(function (b) {
         b.addEventListener("click", function () {
-          var k = +b.getAttribute("data-k"), ok = k === q[2];
+          var ok = +b.getAttribute("data-k") === q.c;
           if (ok) score++;
           opts.forEach(function (o) { o.disabled = true; });
-          opts[q[2]].classList.add("right"); if (!ok) b.classList.add("wrong");
-          box.querySelector(".q-fb").textContent = (ok ? "Correct! " : "Not quite. ") + q[3];
+          opts[q.c].classList.add("right"); if (!ok) b.classList.add("wrong");
+          box.querySelector(".q-fb").textContent = (ok ? "Correct! " : "Not quite. ") + q.e;
           box.querySelector(".q-top span:last-child").textContent = "Score: " + score;
           var n = document.getElementById("q-next"); n.hidden = false; n.focus();
         });
       });
-      document.getElementById("q-next").addEventListener("click", function () { i++; if (i < Q.length) ask(); else finish(); });
+      document.getElementById("q-next").addEventListener("click", function () { i++; if (i < cur.length) ask(); else finish(); });
     };
     var finish = function () {
       var win = score >= 7;
-      box.innerHTML = '<div class="card quiz" style="text-align:center"><div class="q-bar"><i style="width:100%"></i></div><p style="margin:0;font-weight:700">Your score</p><div class="q-score">' + score + ' / ' + Q.length + '</div><p>' +
-        (win ? "You nailed it! Check your prize." : "So close. You need 7 to win the coffee. Try again!") + '</p><div class="btn-row" style="justify-content:center"><button type="button" class="btn" id="q-again">Play again</button>' +
+      box.innerHTML = '<div class="card quiz" style="text-align:center"><div class="q-bar"><i style="width:100%"></i></div><p style="margin:0;font-weight:700">Your score</p><div class="q-score">' + score + ' / ' + cur.length + '</div><p>' +
+        (win ? "You nailed it! Check your prize." : "So close. You need 7 to win the coffee. Play again for 10 brand-new questions!") + '</p><div class="btn-row" style="justify-content:center"><button type="button" class="btn" id="q-again">Play again (new questions)</button>' +
         (win ? '<button type="button" class="btn alt" id="q-prize">Show my prize</button>' : "") + "</div></div>";
       document.getElementById("q-again").addEventListener("click", start);
-      if (win) { var p = document.getElementById("q-prize"); p.addEventListener("click", prize); prize(); }
+      if (win) { document.getElementById("q-prize").addEventListener("click", prize); prize(); }
     };
     var prize = function () {
       var m = document.createElement("div");
@@ -213,17 +173,19 @@
       m.querySelector("#m-close").addEventListener("click", close);
       m.addEventListener("click", function (e) { if (e.target === m) close(); });
     };
-    if (box) start();
+    if (box && BANK.length >= 10) start();
   }
 
-  /* ---------- Story Map ---------- */
+  /* ---------- Story Map (outline traced from the Pakistan map with Kashmir) ---------- */
   if (page === "map") {
     var mbox = document.getElementById("map-root"), pins = D2.pins || [];
-    var OUT = [[61.6,25.1],[61.6,26.2],[63.2,26.6],[63.2,27.2],[62.7,28.3],[61.8,29.0],[60.9,29.85],[62.5,29.4],[64.1,29.5],[66.3,30.9],[67.8,31.6],[69.3,31.9],[69.5,33.0],[70.1,33.9],[71.1,34.1],[71.1,34.6],[71.5,35.5],[71.2,36.1],[71.6,36.8],[72.8,36.9],[74.6,37.0],[75.3,36.9],[75.9,36.6],[76.5,35.9],[77.8,35.5],[77.0,35.1],[76.0,34.7],[75.0,34.6],[74.3,34.8],[73.9,34.6],[74.2,34.0],[74.0,33.4],[74.6,32.8],[74.7,32.4],[74.4,32.0],[74.6,31.6],[74.6,31.0],[74.0,30.4],[73.1,29.9],[72.9,29.0],[71.9,28.0],[70.9,27.9],[70.2,27.3],[70.0,26.2],[69.5,25.6],[68.9,24.4],[68.2,23.7],[67.4,24.2],[67.0,24.8],[66.5,25.4],[64.5,25.2],[62.3,25.2]];
-    var px = function (lon) { return Math.round((lon - 60.4) * 40); }, py = function (lat) { return Math.round((37.2 - lat) * 40); };
-    var svg = '<svg viewBox="0 0 700 560" role="img" aria-label="Map of Pakistan with story pins"><polygon class="land" points="' + OUT.map(function (p) { return px(p[0]) + "," + py(p[1]); }).join(" ") + '"/>' +
+    var OUT = [509,160,499,152,490,148,485,134,485,127,472,127,465,123,454,121,447,114,439,115,432,108,432,96,428,89,424,87,417,87,411,81,399,78,385,84,370,83,347,85,339,89,332,90,322,97,317,97,315,102,307,109,315,116,318,122,318,133,314,142,306,146,303,151,304,166,297,172,272,172,272,175,279,179,281,193,274,198,263,199,260,212,256,217,256,231,253,239,250,242,241,242,234,239,224,238,216,243,214,254,191,255,188,260,178,269,176,297,150,306,130,305,120,310,92,309,84,311,74,311,58,307,41,299,34,298,36,302,46,311,52,326,59,333,71,338,78,344,84,345,84,374,93,374,96,376,96,387,93,395,75,396,69,403,65,404,59,409,58,418,53,424,53,436,58,440,59,438,71,438,76,434,101,436,105,432,121,432,132,437,136,434,143,434,146,431,178,430,187,436,187,446,201,452,204,461,204,469,215,478,226,478,232,474,241,472,242,465,276,466,283,462,289,462,291,464,299,463,301,461,300,448,291,431,291,428,288,424,279,423,276,417,277,399,268,396,261,391,261,382,263,377,275,365,279,356,283,353,290,353,296,360,305,356,317,354,324,350,331,340,334,331,351,318,355,313,356,307,362,296,368,291,377,287,378,277,393,261,393,236,412,226,416,220,423,219,428,213,429,203,433,200,444,196,454,196,468,204,480,203,485,211,492,212,495,217,499,213,506,213,508,217,512,219,519,213,516,198,506,185,504,179,504,169];
+    var S = 1.4, OX = 24, OY = 68;
+    var mx = function (x) { return Math.round((x - OX) * S); }, my = function (y) { return Math.round((y - OY) * S); };
+    var poly = []; for (var q = 0; q < OUT.length; q += 2) poly.push(mx(OUT[q]) + "," + my(OUT[q + 1]));
+    var svg = '<svg viewBox="0 0 708 590" role="img" aria-label="Map of Pakistan with story pins"><polygon class="land" points="' + poly.join(" ") + '"/>' +
       pins.map(function (p, n) {
-        var x = px(p.lon), y = py(p.lat), live = !!p.url;
+        var x = mx(p.x), y = my(p.y), live = !!p.url;
         return '<g class="pin' + (live ? "" : " soon") + '" tabindex="0" role="link" data-n="' + n + '" aria-label="' + esc(p.name) + (live ? ": open report" : ": report coming soon") + '"><circle cx="' + x + '" cy="' + y + '" r="8"/><text x="' + (x + p.dx) + '" y="' + (y + p.dy) + '" text-anchor="' + (p.a || "start") + '">' + esc(p.name) + "</text></g>";
       }).join("") + "</svg>";
     mbox.innerHTML = '<div class="mapbox">' + svg + '</div><p class="map-msg" id="map-msg" role="status" aria-live="polite">Tap a pin to open the report from that place. Grey pins are on their way.</p>' +

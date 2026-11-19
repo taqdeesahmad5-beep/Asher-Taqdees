@@ -28,7 +28,7 @@
 
   var mb = document.querySelector(".modebtn");
   if (mb) mb.addEventListener("click", function () {
-    var next = document.documentElement.getAttribute("data-theme") === "formal" ? "fun" : "formal";
+    var next = document.documentElement.getAttribute("data-theme") === "fun" ? "formal" : "fun";
     try { localStorage.setItem("siteMode", next); } catch (e) {}
     try { document.cookie = "siteMode=" + next + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
     try { sessionStorage.setItem("siteMode", next); } catch (e) {}
@@ -168,7 +168,7 @@
   var selectors = ".section-title,.card,.pill,.timeline .item,.snap,.facts li,main section > p,main section > .btn-row";
 
   function setupReveal() {
-    if (document.documentElement.getAttribute("data-theme") === "formal") return;
+    if (document.documentElement.getAttribute("data-theme") !== "fun") return;
     var items = document.querySelectorAll(selectors);
     if (!("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entries) {
@@ -327,4 +327,25 @@
   }
   document.addEventListener("pointerover", warm, { passive: true });
   document.addEventListener("touchstart", warm, { passive: true });
+})();
+
+/* ===== smooth page transitions for browsers without cross-page View Transitions (Safari, Firefox) ===== */
+(function () {
+  if ("onpageswap" in window) return;                       /* Chrome/Edge/Android already cross-fade (see style.css) */
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (calm || !document.body || !document.body.animate) return;
+  document.body.animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: 380, easing: "cubic-bezier(.2,.7,.2,1)" });
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target && a.target !== "_self") return;
+    if (a.origin !== location.origin || a.hasAttribute("download")) return;
+    if (a.pathname === location.pathname && a.search === location.search) return;
+    e.preventDefault();
+    var go = a.href;
+    var anim = document.body.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: "ease-out", fill: "forwards" });
+    anim.onfinish = function () { location.href = go; };
+    setTimeout(function () { location.href = go; }, 400);
+  });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) document.body.getAnimations().forEach(function (x) { x.cancel(); }); });
 })();
