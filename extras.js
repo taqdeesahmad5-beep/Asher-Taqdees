@@ -128,19 +128,11 @@
     p.setAttribute("aria-label", "Scroll left"); n.setAttribute("aria-label", "Scroll right");
     p.textContent = "\u2039"; n.textContent = "\u203A";
     w.appendChild(p); w.appendChild(n);
-    var hint = document.createElement("p"); hint.className = "sl-hint"; hint.setAttribute("aria-live", "polite"); w.appendChild(hint);
     function upd() {
       var more = g.scrollWidth > g.clientWidth + 8, kids = g.children, total = kids.length;
       p.disabled = g.scrollLeft < 8; n.disabled = g.scrollLeft + g.clientWidth >= g.scrollWidth - 8;
       w.classList.toggle("more-r", more && !n.disabled); w.classList.toggle("more-l", more && !p.disabled);
       p.hidden = n.hidden = !more;
-      if (!more) { hint.textContent = ""; return; }
-      var gr = g.getBoundingClientRect(), first = 0, last = 0;
-      for (var k = 0; k < total; k++) {
-        var r = kids[k].getBoundingClientRect();
-        if (r.right > gr.left + r.width * 0.5 && r.left < gr.right - r.width * 0.5) { if (!first) first = k + 1; last = k + 1; }
-      }
-      hint.innerHTML = (n.disabled ? "\u2039 " : "") + "Showing " + (first === last ? first : first + "\u2013" + last) + " of " + total + (n.disabled ? "" : " &middot; swipe for more \u203A");
     }
     function step(dir) { g.scrollBy({ left: dir * Math.max(260, g.clientWidth * 0.85), behavior: "smooth" }); }
     p.addEventListener("click", function () { step(-1); });

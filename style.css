@@ -393,8 +393,7 @@ html:not([data-theme=fun]) .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border
 .sl-btn.prev{left:2px}.sl-btn.next{right:2px}
 @media(min-width:900px){.sl-btn.prev{left:-12px}.sl-btn.next{right:-12px}}
 .sl-btn[hidden]{display:none}
-.slwrap::after,.slwrap::before{content:"";position:absolute;top:0;bottom:34px;width:46px;pointer-events:none;z-index:4;opacity:0;transition:opacity .25s}
+.slwrap::after,.slwrap::before{content:"";position:absolute;top:0;bottom:16px;width:46px;pointer-events:none;z-index:4;opacity:0;transition:opacity .25s}
 .slwrap::after{right:0;background:linear-gradient(to left,var(--paper),transparent)}
 .slwrap::before{left:0;background:linear-gradient(to right,var(--paper),transparent)}
 .slwrap.more-r::after,.slwrap.more-l::before{opacity:1}
-.sl-hint{margin:0;padding:0 4px;font-size:.78rem;font-weight:700;color:var(--red);text-align:right}
