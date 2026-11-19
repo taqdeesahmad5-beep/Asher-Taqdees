@@ -387,3 +387,19 @@ body[data-page=work] .vcard .body{flex:1}
 body[data-page=work] .card h3,body[data-page=work] .vcard .vt,body[data-page=work] .card p.desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
 .slider .card .actions .btn{padding:5px 11px;font-size:.78rem;box-shadow:none}
 .slider .vcard .body>.btn{box-shadow:none}
+
+/* Articles: exactly 3 cards per screen */
+.grid.slider.three>*{flex-basis:calc((100% - 24px) / 3)}
+
+/* Phones: compact cards so the rows are about half as tall */
+@media(max-width:760px){
+  body[data-page=work] .card p.desc{display:none}
+  body[data-page=work] .slider .card h3,body[data-page=work] .slider .vcard .vt{font-size:.78rem;line-height:1.25;-webkit-line-clamp:2;line-clamp:2;margin:0}
+  body[data-page=work] .slider .vcard .body{padding:7px 8px 9px;gap:5px}
+  body[data-page=work] .slider .card{padding:9px 8px}
+  body[data-page=work] .slider .vcard{padding:0}
+  body[data-page=work] .slider .card .label,body[data-page=work] .slider .vcard .cap{font-size:.6rem;padding:1px 5px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body[data-page=work] .slider .card .actions{padding-top:4px}
+  body[data-page=work] .slider .card .actions .btn,body[data-page=work] .slider .vcard .body>.btn{font-size:.64rem;padding:4px 7px;border-width:1px;line-height:1.2}
+  body[data-page=work] .slider .vcard .thumb::after{font-size:1.5rem}
+}
