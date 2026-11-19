@@ -193,38 +193,31 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup); else setup();
 })();
 
-/* ===== REAL VISITOR BAR: shows how many people visited this page today (real counts, no made-up numbers) ===== */
+/* ===== VISITOR BAR: real numbers from GoatCounter (bot-filtered, counted site-wide) ===== */
 (function () {
   var page = document.body.getAttribute("data-page") || "";
   if (!page || page === "404") return;
-  var API = "https://abacus.jasoncameron.dev", NS = "ashertaqdees-net";
+  var GC = "https://ashertaqdees.goatcounter.com";
   var store = null; try { store = window.localStorage; } catch (e) {}
 
   /* visit the site once with ?owner=1 to stop counting your own visits on that browser */
-  try { if (/[?&]owner=1/.test(location.search) && store) store.setItem("noCount", "1"); } catch (e) {}
-  var isOwner = false; try { isOwner = !!(store && store.getItem("noCount")); } catch (e) {}
+  try { if (/[?&]owner=1/.test(location.search) && store) { store.setItem("noCount", "1"); store.setItem("skipgc", "t"); } } catch (e) {}
 
   var today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Karachi" });   /* YYYY-MM-DD, Pakistan time */
-  var keyToday = "day-" + page + "-" + today, keyTotal = "total-" + page;
-  var seenKey = "counted-" + page, alreadyToday = false;
-  try { alreadyToday = !!store && store.getItem(seenKey) === today; } catch (e) {}
-  var shouldCount = !isOwner && !alreadyToday;          /* one count per browser, per page, per day */
 
-  function call(kind, key) {
+  function count(qs) {
     var ctl = window.AbortController ? new AbortController() : null;
     var t = ctl ? setTimeout(function () { ctl.abort(); }, 6000) : null;
-    return fetch(API + "/" + kind + "/" + NS + "/" + key, ctl ? { signal: ctl.signal } : {})
+    return fetch(GC + "/counter/TOTAL.json" + qs, ctl ? { signal: ctl.signal } : {})
       .then(function (r) { if (t) clearTimeout(t); if (!r.ok) throw new Error("x"); return r.json(); })
-      .then(function (j) { if (typeof j.value !== "number") throw new Error("x"); return j.value; });
+      .then(function (j) { var n = parseInt(String(j.count).replace(/[^0-9]/g, ""), 10); if (isNaN(n)) throw new Error("x"); return n; })
+      .catch(function () { return 0; });
   }
-  /* "hit" adds 1 and returns the number; "get" only reads (a missing counter is treated as 0) */
-  function read(key) { return call("get", key).catch(function () { return 0; }); }
 
   function fmt(n) { try { return n.toLocaleString("en-US"); } catch (e) { return String(n); } }
   function msgFor(td, total) {
-    return td === 1
-      ? "You're today's first visitor on this page 🎉"
-      : "<b>" + fmt(td) + "</b> people visited this page today" + (total > td ? " &middot; <b>" + fmt(total) + "</b> visits in total" : "");
+    if (td > 0) return "<b>" + fmt(td) + "</b> " + (td === 1 ? "person" : "people") + " visited this site today" + (total > td ? " &middot; <b>" + fmt(total) + "</b> visits in total" : "");
+    return "<b>" + fmt(total) + "</b> visits in total";
   }
 
   function whenFree(cb) { cb(); }
@@ -254,25 +247,18 @@
     });
   }
 
-  /* last numbers we got today: shown at once on the next page, then refreshed from the counter */
-  var cacheKey = "vb-" + page;
+  /* last numbers we got today: shown at once on the next page, then refreshed from GoatCounter */
+  var cacheKey = "vb-gc";
   try {
     var cj = JSON.parse((store && store.getItem(cacheKey)) || "null");
-    if (cj && cj.day === today && cj.td > 0) show(cj.td, cj.total);
+    if (cj && cj.day === today && cj.total > 0) show(cj.td, cj.total);
   } catch (e) {}
 
-  var hitOk = true;
-  function startCounter() {
-    var todayP = shouldCount ? call("hit", keyToday).catch(function () { hitOk = false; return read(keyToday); }) : read(keyToday);
-    var totalP = shouldCount ? call("hit", keyTotal).catch(function () { return read(keyTotal); }) : read(keyTotal);
-    Promise.all([todayP, totalP]).then(function (v) {
-      if (shouldCount && hitOk) { try { store && store.setItem(seenKey, today); } catch (e) {} }   /* only mark as counted if it really counted */
-      if (v[0] < 1) return;
-      try { store && store.setItem(cacheKey, JSON.stringify({ day: today, td: v[0], total: v[1] })); } catch (e) {}
-      show(v[0], v[1]);
-    }).catch(function () { /* counter unreachable: saved numbers (if any) stay on screen */ });
-  }
-  startCounter();   /* start right away: it is a tiny background request, so it does not slow the page */
+  Promise.all([count("?start=" + today + "&end=" + today), count("")]).then(function (v) {
+    if (v[1] < 1) return;   /* nothing counted yet (or counter unreachable): stay quiet */
+    try { store && store.setItem(cacheKey, JSON.stringify({ day: today, td: v[0], total: v[1] })); } catch (e) {}
+    show(v[0], v[1]);
+  });
 })();
 
 /* ===== faster navigation: warm up a page when the visitor is about to tap it ===== */
