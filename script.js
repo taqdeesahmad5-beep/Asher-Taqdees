@@ -276,42 +276,66 @@
   }
   /* "hit" adds 1 and returns the number; "get" only reads (a missing counter is treated as 0) */
   function read(key) { return call("get", key).catch(function () { return 0; }); }
-  function startCounter() {
-    var todayP = shouldCount ? call("hit", keyToday) : read(keyToday);
-    var totalP = shouldCount ? call("hit", keyTotal) : read(keyTotal);
-    Promise.all([todayP, totalP]).then(function (v) {
-      if (shouldCount) { try { store && store.setItem(seenKey, today); } catch (e) {} }
-      if (v[0] < 1) return;
-      show(v[0], v[1]);
-    }).catch(function () { /* counter unreachable: show nothing */ });
-  }
-  /* wait until the page itself has finished loading, then count (the bar appears ~2s later anyway) */
-  function whenIdle() { if (window.requestIdleCallback) requestIdleCallback(startCounter, { timeout: 3000 }); else setTimeout(startCounter, 500); }
-  if (document.readyState === "complete") whenIdle(); else window.addEventListener("load", whenIdle);
 
   function fmt(n) { try { return n.toLocaleString("en-US"); } catch (e) { return String(n); } }
-
-  function show(td, total) {
-    var msg = td === 1
-      ? "You're today's first visitor on this page \uD83C\uDF89"
+  function msgFor(td, total) {
+    return td === 1
+      ? "You're today's first visitor on this page 🎉"
       : "<b>" + fmt(td) + "</b> people visited this page today" + (total > td ? " &middot; <b>" + fmt(total) + "</b> visits in total" : "");
-    var css = document.createElement("style");
-    css.textContent =
-      ".vb{position:fixed;left:50%;bottom:16px;transform:translate(-50%,30px);opacity:0;max-width:calc(100vw - 28px);background:var(--ink);color:var(--cream);border:3px solid var(--yellow);border-radius:14px;box-shadow:4px 4px 0 var(--red);padding:10px 38px 10px 14px;font-size:.9rem;line-height:1.35;z-index:900;transition:transform .4s cubic-bezier(.2,.9,.3,1.2),opacity .4s}" +
-      ".vb.on{transform:translate(-50%,0);opacity:1}" +
-      ".vb b{color:var(--yellow)}" +
-      ".vb button{position:absolute;top:2px;right:4px;width:30px;height:30px;border:0;background:transparent;color:var(--cream);font-size:1.3rem;line-height:1;cursor:pointer}" +
-      "@media (prefers-reduced-motion:reduce){.vb{transition:none}}";
-    document.head.appendChild(css);
-    var bar = document.createElement("div");
-    bar.className = "vb"; bar.setAttribute("role", "status");
-    bar.innerHTML = "<span aria-hidden=\"true\">\uD83D\uDC40</span> " + msg + "<button type=\"button\" aria-label=\"Close\">&times;</button>";
-    document.body.appendChild(bar);
-    function close() { bar.classList.remove("on"); setTimeout(function () { bar.remove(); css.remove(); }, 450); }
-    bar.querySelector("button").addEventListener("click", close);
-    setTimeout(function () { bar.classList.add("on"); }, 1800);
-    setTimeout(close, 12000);
   }
+
+  /* the entrance screen covers the page: wait until it is gone before showing the bar */
+  function whenFree(cb) {
+    var de = document.documentElement, on = function () { return /(^|\s)ent-on(\s|$)/.test(de.className); };
+    if (!on()) { cb(); return; }
+    var mo = new MutationObserver(function () { if (!on()) { mo.disconnect(); setTimeout(cb, 400); } });
+    mo.observe(de, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  var bar = null, dismissed = false;
+  function show(td, total) {
+    if (dismissed) return;
+    whenFree(function () {
+      if (dismissed) return;
+      if (bar) { bar.querySelector(".vbm").innerHTML = msgFor(td, total); return; }   /* already open: just refresh the numbers */
+      var css = document.createElement("style");
+      css.textContent =
+        ".vb{position:fixed;left:50%;bottom:16px;transform:translate(-50%,30px);opacity:0;max-width:calc(100vw - 28px);background:var(--ink);color:var(--cream);border:3px solid var(--yellow);border-radius:14px;box-shadow:4px 4px 0 var(--red);padding:10px 38px 10px 14px;font-size:.9rem;line-height:1.35;z-index:900;transition:transform .4s cubic-bezier(.2,.9,.3,1.2),opacity .4s}" +
+        ".vb.on{transform:translate(-50%,0);opacity:1}" +
+        ".vb b{color:var(--yellow)}" +
+        ".vb button{position:absolute;top:2px;right:4px;width:30px;height:30px;border:0;background:transparent;color:var(--cream);font-size:1.3rem;line-height:1;cursor:pointer}" +
+        "@media (prefers-reduced-motion:reduce){.vb{transition:none}}";
+      document.head.appendChild(css);
+      bar = document.createElement("div");
+      bar.className = "vb"; bar.setAttribute("role", "status");
+      bar.innerHTML = "<span aria-hidden=\"true\">👀</span> <span class=\"vbm\">" + msgFor(td, total) + "</span><button type=\"button\" aria-label=\"Close\">&times;</button>";
+      document.body.appendChild(bar);
+      var close = function () { dismissed = true; bar.classList.remove("on"); setTimeout(function () { bar.remove(); css.remove(); }, 450); };
+      bar.querySelector("button").addEventListener("click", close);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add("on"); }); });   /* slides in straight away */
+      setTimeout(close, 14000);
+    });
+  }
+
+  /* last numbers we got today: shown at once on the next page, then refreshed from the counter */
+  var cacheKey = "vb-" + page;
+  try {
+    var cj = JSON.parse((store && store.getItem(cacheKey)) || "null");
+    if (cj && cj.day === today && cj.td > 0) show(cj.td, cj.total);
+  } catch (e) {}
+
+  var hitOk = true;
+  function startCounter() {
+    var todayP = shouldCount ? call("hit", keyToday).catch(function () { hitOk = false; return read(keyToday); }) : read(keyToday);
+    var totalP = shouldCount ? call("hit", keyTotal).catch(function () { return read(keyTotal); }) : read(keyTotal);
+    Promise.all([todayP, totalP]).then(function (v) {
+      if (shouldCount && hitOk) { try { store && store.setItem(seenKey, today); } catch (e) {} }   /* only mark as counted if it really counted */
+      if (v[0] < 1) return;
+      try { store && store.setItem(cacheKey, JSON.stringify({ day: today, td: v[0], total: v[1] })); } catch (e) {}
+      show(v[0], v[1]);
+    }).catch(function () { /* counter unreachable: saved numbers (if any) stay on screen */ });
+  }
+  startCounter();   /* start right away: it is a tiny background request, so it does not slow the page */
 })();
 
 /* ===== faster navigation: warm up a page when the visitor is about to tap it ===== */
