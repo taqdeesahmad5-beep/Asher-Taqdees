@@ -20,7 +20,6 @@
 
   var sm = document.querySelector("#site-footer small");
   if (sm) sm.innerHTML = "&copy; " + new Date().getFullYear() + " Asher Taqdees. All rights reserved.";
-  document.querySelectorAll(".vcard .btn").forEach(function (b) { b.textContent = "Watch on YouTube"; });
 
   /* ---------- back to top ---------- */
   var tt = document.createElement("button");

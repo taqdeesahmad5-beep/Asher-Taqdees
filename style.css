@@ -377,3 +377,13 @@ html:root .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5c
 /* Facebook reel card: shows images/parkview-thumb.jpg if present, else a plain navy panel */
 .fb-thumb{background:#14213d!important}
 .fb-thumb .fb-note{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:#fff;font-size:.8rem;font-weight:700;letter-spacing:.04em;z-index:1}
+
+/* ===== Archive cards: tidy tags, buttons, max 3 lines of text ===== */
+.vcard .cap{display:block;background:#8c1c2b;color:#fff;font-size:.72rem;font-weight:700;padding:1px 8px;text-transform:uppercase;letter-spacing:.04em}
+.card .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:10px}
+.card .actions .btn{padding:6px 14px;font-size:.88rem}
+body[data-page=work] .card{display:flex;flex-direction:column}
+body[data-page=work] .vcard .body{flex:1}
+body[data-page=work] .card h3,body[data-page=work] .vcard .vt,body[data-page=work] .card p.desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden}
+.slider .card .actions .btn{padding:5px 11px;font-size:.78rem;box-shadow:none}
+.slider .vcard .body>.btn{box-shadow:none}
