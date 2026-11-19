@@ -98,6 +98,22 @@ window.SITE2 = {
     ["Which sentence is correct?", ["Its’ raining today.", "Its raining today.", "It raining today.", "It’s raining today."], 3, "It’s = it is."]
   ],
 
+
+  /* ---- Add NEW videos here (you do not need to touch data.js) ----
+     reports: shows on the Reports page. The tab comes from "cats" below (or from the title words).
+     groups:  shows as a card in the Archive page sliders: explainers, informative, investigations.
+     "cap" is the small red tag on the card. Newest first. */
+  more: {
+    reports: [
+      { id: "0WcOTC_U6xg", title: "Polio Workers Under Threat" },
+      { id: "92Ms-VUHetM", title: "Ali Raza & Sana Social Media Divorce Story | Demands Rs 20,000 For Interview" }
+    ],
+    groups: {
+      explainers:     [ { id: "0WcOTC_U6xg", title: "Polio Workers Under Threat" } ],
+      investigations: [ { id: "92Ms-VUHetM", title: "Ali Raza & Sana Social Media Divorce Story | Demands Rs 20,000 For Interview", cap: "Expos\u00e9" } ]
+    }
+  },
+
   /* ---- Reports filter tabs ----
      Videos are sorted into tabs automatically from their titles.
      If one lands in the wrong tab, force it here:
@@ -108,6 +124,8 @@ window.SITE2 = {
     "wQBU1x1roho": "explainers",
     "zfOhBSYLSHs": "explainers",
     "x6LlzweNpRY": "explainers",
+    "0WcOTC_U6xg": "explainers",
+    "92Ms-VUHetM": "investigations",
     "8bYknFcSNQM": "explainers"
   },
 
@@ -118,3 +136,17 @@ window.SITE2 = {
     promotions: ["launch", "campaign", "promo", "sponsor", "activation", "unveil", "brand"]
   }
 };
+
+/* merge the "more" videos into the main lists (runs before the pages draw them) */
+(function () {
+  var S = window.SITE, M = (window.SITE2 || {}).more;
+  if (!S || !M) return;
+  function has(list, id) { return (list || []).some(function (v) { return v.id === id; }); }
+  S.videos = S.videos || [];
+  (M.reports || []).slice().reverse().forEach(function (v) { if (!has(S.videos, v.id)) S.videos.unshift(v); });
+  S.groups = S.groups || {};
+  Object.keys(M.groups || {}).forEach(function (k) {
+    S.groups[k] = S.groups[k] || [];
+    M.groups[k].slice().reverse().forEach(function (v) { if (!has(S.groups[k], v.id)) S.groups[k].unshift(v); });
+  });
+})();

@@ -116,7 +116,7 @@
   /* extra video cards appended to any grid with data-videos="key" (keys live in data.js "groups") */
   document.querySelectorAll("[data-videos]").forEach(function (g) {
     var list = (data.groups || {})[g.getAttribute("data-videos")] || [];
-    g.insertAdjacentHTML("beforeend", list.map(function (v) { return videoCard(v, g.getAttribute("data-cap") || ""); }).join(""));
+    g.insertAdjacentHTML("afterbegin", list.map(function (v) { return videoCard(v, v.cap || g.getAttribute("data-cap") || ""); }).join(""));
     fillTitles(g);
   });
 

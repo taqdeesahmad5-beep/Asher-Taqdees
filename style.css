@@ -364,3 +364,14 @@ html.ent-on{overflow:hidden}
 ::view-transition-new(root){animation:vt-in .4s cubic-bezier(.2,.7,.2,1) both}
 @keyframes vt-out{to{opacity:0}}
 @keyframes vt-in{from{opacity:0;transform:translateY(12px)}}
+
+/* ===== swipe sliders (Archive page sections) ===== */
+.slwrap{position:relative}
+.grid.slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;padding:8px 6px 18px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.grid.slider>*{flex:0 0 clamp(250px,26%,310px);scroll-snap-align:start}
+@media(max-width:600px){.grid.slider>*{flex-basis:78%}}
+.sl-btn{position:absolute;top:38%;z-index:5;width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--cream);color:var(--ink);font-size:1.3rem;line-height:1;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);padding:0;transition:opacity .2s}
+.sl-btn.prev{left:-14px}.sl-btn.next{right:-14px}
+.sl-btn:disabled{opacity:0;pointer-events:none}
+@media(hover:none){.sl-btn{display:none}}
+html:not([data-theme=fun]) .sl-btn{box-shadow:0 1px 6px rgba(20,33,61,.3);border:1px solid #d5d5cf}

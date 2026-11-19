@@ -117,6 +117,24 @@
     }
   }
 
+  /* ---------- sliders: video rows in the Archive page scroll sideways ---------- */
+  document.querySelectorAll(".grid[data-videos]").forEach(function (g) {
+    if (!g.children.length) return;
+    g.classList.add("slider");
+    var w = document.createElement("div"); w.className = "slwrap";
+    g.parentNode.insertBefore(w, g); w.appendChild(g);
+    var p = document.createElement("button"), n = document.createElement("button");
+    p.type = n.type = "button"; p.className = "sl-btn prev"; n.className = "sl-btn next";
+    p.setAttribute("aria-label", "Scroll left"); n.setAttribute("aria-label", "Scroll right");
+    p.textContent = "\u2039"; n.textContent = "\u203A";
+    w.appendChild(p); w.appendChild(n);
+    function upd() { p.disabled = g.scrollLeft < 8; n.disabled = g.scrollLeft + g.clientWidth >= g.scrollWidth - 8; }
+    function step(dir) { g.scrollBy({ left: dir * Math.max(260, g.clientWidth * 0.85), behavior: "smooth" }); }
+    p.addEventListener("click", function () { step(-1); });
+    n.addEventListener("click", function () { step(1); });
+    g.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd); upd();
+  });
+
   /* ---------- Quiz: 10 random questions from the bank (data2.js), different each time ---------- */
   if (page === "quiz") {
     var BANK = D2.quiz || [], box = document.getElementById("quiz-root"), cur = [], i = 0, score = 0;
