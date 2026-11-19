@@ -30,8 +30,7 @@
   d.innerHTML =
     '<h2>How would you like to meet me?</h2>' +
     '<button type="button" class="side fun" data-m="fun"><b>Keep it fun</b><span class="go">Let’s go</span></button>' +
-    '<button type="button" class="side for" data-m="formal"><b>Keep it formal</b><span class="go">Continue</span></button>' +
-    '<span class="vs" aria-hidden="true">OR</span>';
+    '<button type="button" class="side for" data-m="formal"><b>Keep it formal</b><span class="go">Continue</span></button>';
   de.appendChild(d);
   d.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("[data-m]") : null; if (!b) return;
