@@ -1,0 +1,12 @@
+{
+  "name": "asher-taqdees",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    { "binding": "QUIZ_KV" }
+  ]
+}
