@@ -6,7 +6,6 @@
     ["about.html", "about", "About"],
     ["work.html", "work", "Archive"],
     ["videos.html", "videos", "Reports"],
-    ["events.html", "events", "Workshops"],
     ["feed.html", "feed", "Feed"],
     ["quiz.html", "quiz", "Quiz"],
     ["map.html", "map", "Story Map"],
