@@ -433,3 +433,6 @@ body[data-page=work] .card h3,body[data-page=work] .vcard .vt,body[data-page=wor
 .hl-black{color:#000;font-weight:800}
 /* mobile: tighter gap between "Bylined as" bar and name only */
 @media(max-width:800px){.hero .kicker{margin-bottom:4px}}
+
+/* red highlights (university names, boxing games) */
+.hl{color:var(--red);font-weight:700}
