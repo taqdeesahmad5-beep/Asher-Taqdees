@@ -26,7 +26,8 @@ const clean = (s) =>
 
 async function load(kv) {
   const d = (await kv.get(KEY, "json")) || {};
-  return { played: d.played | 0, passed: d.passed | 0, failed: d.failed | 0, sigs: Array.isArray(d.sigs) ? d.sigs : [] };
+  const r = d.repeat || {};
+  return { played: d.played | 0, passed: d.passed | 0, failed: d.failed | 0, repeat: { people: r.people | 0, passed: r.passed | 0 }, sigs: Array.isArray(d.sigs) ? d.sigs : [] };
 }
 
 async function handleQuiz(request, env) {
@@ -49,6 +50,19 @@ async function handleQuiz(request, env) {
   if (body.type === "result") {
     d.played++;
     if (score >= PASS) d.passed++; else d.failed++;
+    /* who is playing again? each browser gets a random anonymous id (cookie "qid") */
+    const m = (request.headers.get("cookie") || "").match(/(?:^|;\s*)qid=([\w-]{10,60})/);
+    const qid = m ? m[1] : crypto.randomUUID();
+    const players = (await kv.get("players", "json")) || {};
+    const p = players[qid] || { c: 0, k: 0 };
+    p.c++; if (score >= PASS) p.k = 1;
+    players[qid] = p;
+    let people = 0, ok = 0;
+    for (const k in players) if (players[k].c >= 2) { people++; if (players[k].k) ok++; }
+    d.repeat = { people, passed: ok };
+    await kv.put("players", JSON.stringify(players));
+    await kv.put(KEY, JSON.stringify(d));
+    return json(d, 200, m ? {} : { "set-cookie": "qid=" + qid + "; Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly" });
   } else if (body.type === "sign") {
     const name = clean(body.name);
     if (!name) return json({ error: "name" }, 400);

@@ -246,6 +246,8 @@ img{max-width:100%;height:auto}
 .qstats div{flex:1;text-align:center;padding:6px 4px;border-left:2px solid var(--ink)}
 .qstats div:first-child{border-left:0}
 .qstats b{display:block;font-family:'Archivo Black',Impact,sans-serif;font-size:1.15rem;line-height:1.2}
+.qstats em{display:block;font-style:normal;font-size:.68rem;opacity:.75;line-height:1.1}
+.qstats .rp b{color:var(--ink)}
 .qstats .ok b{color:#1f7a2e}.qstats .no b{color:var(--red)}
 .qsign{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin:14px 0 4px;padding-top:12px;border-top:2px dashed var(--ink)}
 .qsign label{flex:1 0 100%;font-size:.85rem;font-weight:700}

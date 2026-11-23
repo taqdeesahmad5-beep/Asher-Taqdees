@@ -151,13 +151,19 @@
       });
     };
     /* ---- scoreboard (shared via /api/quiz; falls back to this device only if the API is not set up) ---- */
-    var board = { played: 0, passed: 0, failed: 0, sigs: [] }, shared = null, sigOpen = false;
+    var board = { played: 0, passed: 0, failed: 0, repeat: { people: 0, passed: 0 }, sigs: [] }, shared = null, sigOpen = false;
     var sBox = document.getElementById("quiz-stats"), gBox = document.getElementById("quiz-sigs");
     var fmtDate = function (t) { var d = new Date(t + "T00:00:00"); return isNaN(d) ? t : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); };
     var localBoard = function () { try { var d = JSON.parse(window.localStorage.getItem("quizBoard")); if (d && d.sigs) return d; } catch (e) {} return { played: 0, passed: 0, failed: 0, sigs: [] }; };
     var localApply = function (b) {
       var d = localBoard(), sc = b.score;
-      if (b.type === "result") { d.played++; if (sc >= 7) d.passed++; else d.failed++; }
+      if (b.type === "result") {
+        d.played++; if (sc >= 7) d.passed++; else d.failed++;
+        var me = { c: 0, k: 0 }; try { me = JSON.parse(window.localStorage.getItem("quizMine")) || me; } catch (e) {}
+        me.c++; if (sc >= 7) me.k = 1;
+        try { window.localStorage.setItem("quizMine", JSON.stringify(me)); } catch (e) {}
+        d.repeat = { people: me.c >= 2 ? 1 : 0, passed: me.c >= 2 && me.k ? 1 : 0 };
+      }
       else { d.sigs.unshift({ n: String(b.name).slice(0, 30), s: sc, t: new Date(Date.now() + 5 * 36e5).toISOString().slice(0, 10) }); d.sigs = d.sigs.slice(0, 200); }
       try { window.localStorage.setItem("quizBoard", JSON.stringify(d)); } catch (e) {}
       return d;
@@ -170,13 +176,14 @@
     var send = function (b) { return api("POST", b).then(function (d) { shared = true; return d; }, function (e) { if (e === "dup") return { dup: true }; shared = false; return localApply(b); }); };
     var signed = function () { try { return !!window.localStorage.getItem("quizSigned"); } catch (e) { return false; } };
     var paint = function () {
-      sBox.innerHTML = '<div class="qstats" aria-label="Quiz results so far"><div><b>' + board.played + '</b>participated</div><div class="ok"><b>' + board.passed + '</b>succeeded</div><div class="no"><b>' + board.failed + '</b>failed</div></div>';
+      sBox.innerHTML = '<div class="qstats" aria-label="Quiz results so far"><div><b>' + board.played + '</b>participated</div><div class="ok"><b>' + board.passed + '</b>succeeded</div><div class="no"><b>' + board.failed + '</b>failed</div><div class="rp" title="People who played the quiz two or more times"><b>' + (board.repeat || { people: 0, passed: 0 }).people + '</b>played again<em>' + (board.repeat || { people: 0, passed: 0 }).passed + ' got 7+</em></div></div>';
       var n = board.sigs.length;
       gBox.innerHTML = '<div class="qsig"><button type="button" class="qsig-toggle" aria-expanded="' + sigOpen + '" aria-controls="qsig-list">' + (sigOpen ? "Hide" : "Click to reveal") + " participants' signatures (" + n + ")</button>" +
         (sigOpen ? '<ul class="qsig-list" id="qsig-list">' + (n ? board.sigs.map(function (g) {
           return "<li><b>" + esc(g.n) + "</b>; got " + g.s + " point" + (g.s === 1 ? "" : "s") + " <span>on " + esc(fmtDate(g.t)) + "</span></li>";
         }).join("") : "<li>No signatures yet. Be the first!</li>") + "</ul>" +
-          (shared === false ? '<p class="qsig-note">Showing signatures saved on this device only.</p>' : "") : "") + "</div>";
+          (shared === false ? '<p class="qsig-note">Showing signatures saved on this device only.</p>' : "") : "") +
+        '<p class="qsig-note">Only one person can sign, and only one time.</p></div>';
       gBox.querySelector(".qsig-toggle").addEventListener("click", function () { sigOpen = !sigOpen; paint(); });
     };
     var take = function (d) { board = d; paint(); };
