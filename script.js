@@ -253,7 +253,7 @@
     if (cj && cj.day === today && cj.total > 0) show(cj.td, cj.total);
   } catch (e) {}
 
-  Promise.all([count("?start=" + today + "&end=" + today), count("")]).then(function (v) {
+  Promise.all([count("?start=" + today + "T00:00:00%2B05:00&end=" + today + "T23:59:59%2B05:00"), count("")]).then(function (v) {
     if (v[1] < 1) return;   /* nothing counted yet (or counter unreachable): stay quiet */
     try { store && store.setItem(cacheKey, JSON.stringify({ day: today, td: v[0], total: v[1] })); } catch (e) {}
     show(v[0], v[1]);
