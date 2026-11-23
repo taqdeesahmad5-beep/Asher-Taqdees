@@ -241,6 +241,25 @@ img{max-width:100%;height:auto}
 .q-opt.right{background:#b7f0b1}.q-opt.wrong{background:#ffc9d0}
 .q-fb{min-height:2.6em;font-weight:600;margin:0 0 10px}
 .q-score{font-family:'Archivo Black',Impact,sans-serif;font-size:3rem;margin:6px 0}
+/* quiz scoreboard + signatures (kept small and calm) */
+.qstats{display:flex;max-width:640px;margin:0 auto 14px;border:2px solid var(--ink);border-radius:8px;background:var(--cream);overflow:hidden;font-size:.82rem}
+.qstats div{flex:1;text-align:center;padding:6px 4px;border-left:2px solid var(--ink)}
+.qstats div:first-child{border-left:0}
+.qstats b{display:block;font-family:'Archivo Black',Impact,sans-serif;font-size:1.15rem;line-height:1.2}
+.qstats .ok b{color:#1f7a2e}.qstats .no b{color:var(--red)}
+.qsign{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;margin:14px 0 4px;padding-top:12px;border-top:2px dashed var(--ink)}
+.qsign label{flex:1 0 100%;font-size:.85rem;font-weight:700}
+.qsign input{font:inherit;font-size:.95rem;padding:6px 10px;border:2px solid var(--ink);border-radius:8px;background:#fff;width:min(220px,60%)}
+.qsign .btn{padding:5px 14px;font-size:.9rem;box-shadow:2px 2px 0 var(--ink);border-width:2px}
+.qsign-msg{font-size:.85rem;font-weight:600;margin:6px 0 0}
+.qsig{max-width:640px;margin:14px auto 0;font-size:.88rem}
+.qsig-toggle{font:inherit;font-size:.82rem;font-weight:700;background:none;color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:3px 12px;cursor:pointer}
+.qsig-toggle:hover{background:var(--yellow)}
+.qsig-list{margin:8px 0 0;padding:6px 12px;list-style:none;border:2px solid var(--ink);border-radius:8px;background:var(--cream);max-height:200px;overflow:auto}
+.qsig-list li{padding:5px 0;border-bottom:1px dashed rgba(22,22,22,.35)}
+.qsig-list li:last-child{border-bottom:0}
+.qsig-list span{opacity:.75}
+.qsig-note{font-size:.75rem;opacity:.7;margin:4px 0 0}
 .modal{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal .box{background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:16px;box-shadow:8px 8px 0 var(--red);max-width:440px;width:100%;padding:26px 22px;text-align:center;animation:pop .45s ease-out}
 .modal .box h2{margin:0 0 .4em}

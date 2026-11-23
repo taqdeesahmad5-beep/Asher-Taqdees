@@ -150,6 +150,38 @@
         return { q: q[0], o: opts, c: opts.indexOf(right), e: q[3] || "" };
       });
     };
+    /* ---- scoreboard (shared via /api/quiz; falls back to this device only if the API is not set up) ---- */
+    var board = { played: 0, passed: 0, failed: 0, sigs: [] }, shared = null, sigOpen = false;
+    var sBox = document.getElementById("quiz-stats"), gBox = document.getElementById("quiz-sigs");
+    var fmtDate = function (t) { var d = new Date(t + "T00:00:00"); return isNaN(d) ? t : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); };
+    var localBoard = function () { try { var d = JSON.parse(window.localStorage.getItem("quizBoard")); if (d && d.sigs) return d; } catch (e) {} return { played: 0, passed: 0, failed: 0, sigs: [] }; };
+    var localApply = function (b) {
+      var d = localBoard(), sc = b.score;
+      if (b.type === "result") { d.played++; if (sc >= 7) d.passed++; else d.failed++; }
+      else { d.sigs.unshift({ n: String(b.name).slice(0, 30), s: sc, t: new Date().toISOString().slice(0, 10) }); d.sigs = d.sigs.slice(0, 200); }
+      try { window.localStorage.setItem("quizBoard", JSON.stringify(d)); } catch (e) {}
+      return d;
+    };
+    var api = function (method, body) {
+      return fetch("/api/quiz", { method: method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (d) { if (!d || typeof d.played !== "number") throw 0; return d; });
+    };
+    var send = function (b) { return api("POST", b).then(function (d) { shared = true; return d; }, function () { shared = false; return localApply(b); }); };
+    var paint = function () {
+      sBox.innerHTML = '<div class="qstats" aria-label="Quiz results so far"><div><b>' + board.played + '</b>participated</div><div class="ok"><b>' + board.passed + '</b>succeeded</div><div class="no"><b>' + board.failed + '</b>failed</div></div>';
+      var n = board.sigs.length;
+      gBox.innerHTML = '<div class="qsig"><button type="button" class="qsig-toggle" aria-expanded="' + sigOpen + '" aria-controls="qsig-list">' + (sigOpen ? "Hide" : "Click to reveal") + " participants' signatures (" + n + ")</button>" +
+        (sigOpen ? '<ul class="qsig-list" id="qsig-list">' + (n ? board.sigs.map(function (g) {
+          return "<li><b>" + esc(g.n) + "</b>; got " + g.s + " point" + (g.s === 1 ? "" : "s") + " <span>on " + esc(fmtDate(g.t)) + "</span></li>";
+        }).join("") : "<li>No signatures yet. Be the first!</li>") + "</ul>" +
+          (shared === false ? '<p class="qsig-note">Showing signatures saved on this device only.</p>' : "") : "") + "</div>";
+      gBox.querySelector(".qsig-toggle").addEventListener("click", function () { sigOpen = !sigOpen; paint(); });
+    };
+    var take = function (d) { board = d; paint(); };
+    paint();
+    api("GET").then(function (d) { shared = true; take(d); }, function () { shared = false; take(localBoard()); });
+
     var start = function () { cur = pick(); i = 0; score = 0; ask(); window.scrollTo({ top: 0 }); };
     var ask = function () {
       var q = cur[i];
@@ -177,6 +209,22 @@
         (win ? "You nailed it! Check your prize." : "So close. You need 7 to win the coffee. Play again for 10 brand-new questions!") + '</p><div class="btn-row" style="justify-content:center"><button type="button" class="btn" id="q-again">Play again (new questions)</button>' +
         (win ? '<button type="button" class="btn alt" id="q-prize">Show my prize</button>' : "") + "</div></div>";
       document.getElementById("q-again").addEventListener("click", start);
+      var card = box.querySelector(".quiz"), finalScore = score;
+      send({ type: "result", score: finalScore }).then(take);
+      var f = document.createElement("form");
+      f.className = "qsign";
+      f.innerHTML = '<label for="q-name">Sign your name (optional)</label><input id="q-name" maxlength="30" autocomplete="name" placeholder="Your name"><button type="submit" class="btn alt">Sign</button><p class="qsign-msg" role="status" aria-live="polite" style="flex:1 0 100%"></p>';
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var nm = f.querySelector("input").value.replace(/\s+/g, " ").trim();
+        if (!nm) { f.querySelector(".qsign-msg").textContent = "Please type your name first."; return; }
+        f.querySelector("button").disabled = true;
+        send({ type: "sign", name: nm, score: finalScore }).then(function (d) {
+          take(d); sigOpen = true; paint();
+          f.innerHTML = '<p class="qsign-msg" style="flex:1 0 100%">Thanks, ' + esc(nm) + ". Your signature is on the list below.</p>";
+        });
+      });
+      card.appendChild(f);
       if (win) { document.getElementById("q-prize").addEventListener("click", prize); prize(); }
     };
     var prize = function () {
