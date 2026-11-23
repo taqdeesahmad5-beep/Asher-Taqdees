@@ -105,11 +105,13 @@ window.SITE2 = {
      "cap" is the small red tag on the card. Newest first. */
   more: {
     reports: [
+      { id: "MEt1XjxvpFQ", title: "What Is Hidden in The Economist's 2027 Cover?" },
+      { id: "fft6sH5J0ks", title: "Why Are Internet Cables Laid Under the Sea? | How Do They Get Damaged?" },
       { id: "0WcOTC_U6xg", title: "Polio Workers Under Threat" },
       { id: "92Ms-VUHetM", title: "Ali Raza & Sana Social Media Divorce Story | Demands Rs 20,000 For Interview" }
     ],
     groups: {
-      explainers:     [ { id: "0WcOTC_U6xg", title: "Polio Workers Under Threat" } ],
+      explainers:     [ { id: "MEt1XjxvpFQ", title: "What Is Hidden in The Economist's 2027 Cover?" }, { id: "fft6sH5J0ks", title: "Why Are Internet Cables Laid Under the Sea? | How Do They Get Damaged?" }, { id: "0WcOTC_U6xg", title: "Polio Workers Under Threat" } ],
       investigations: [ { id: "92Ms-VUHetM", title: "Ali Raza & Sana Social Media Divorce Story | Demands Rs 20,000 For Interview", cap: "Expos\u00e9" } ]
     }
   },
@@ -119,6 +121,8 @@ window.SITE2 = {
      If one lands in the wrong tab, force it here:
      "VIDEO_ID": "investigations" | "general" | "explainers" | "promotions" */
   cats: {
+    "MEt1XjxvpFQ": "explainers",
+    "fft6sH5J0ks": "explainers",
     "YxPlcyfCnXg": "explainers",
     "SZu2KrBUZ4c": "explainers",
     "wQBU1x1roho": "explainers",
