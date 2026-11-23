@@ -5,11 +5,21 @@ const KEY = "board";
 const MAX_SIGS = 200;            /* keep the newest 200 signatures */
 const PASS = 7;                  /* same rule as the quiz: 7 or more = success */
 
-const json = (obj, status = 200) =>
+const json = (obj, status = 200, extra = {}) =>
   new Response(JSON.stringify(obj), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra },
   });
+
+/* today's date in Pakistan time (UTC+5) */
+const pkDate = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+
+/* one signature per browser (cookie) + at most 3 per internet connection (hashed, raw IP is never stored) */
+const IP_LIMIT = 3;
+async function hashIp(ip) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("quiz:" + ip));
+  return [...new Uint8Array(buf)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 const clean = (s) =>
   String(s == null ? "" : s).replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 30);
@@ -42,8 +52,16 @@ async function handleQuiz(request, env) {
   } else if (body.type === "sign") {
     const name = clean(body.name);
     if (!name) return json({ error: "name" }, 400);
-    d.sigs.unshift({ n: name, s: score, t: new Date().toISOString().slice(0, 10) });
+    if (/(?:^|;\s*)qsig=1/.test(request.headers.get("cookie") || "")) return json({ error: "dup" }, 409);
+    const ip = await hashIp(request.headers.get("cf-connecting-ip") || "unknown");
+    const ips = (await kv.get("ips", "json")) || {};
+    if ((ips[ip] | 0) >= IP_LIMIT) return json({ error: "dup" }, 409);
+    ips[ip] = (ips[ip] | 0) + 1;
+    await kv.put("ips", JSON.stringify(ips));
+    d.sigs.unshift({ n: name, s: score, t: pkDate() });
     d.sigs = d.sigs.slice(0, MAX_SIGS);
+    await kv.put(KEY, JSON.stringify(d));
+    return json(d, 200, { "set-cookie": "qsig=1; Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly" });
   } else {
     return json({ error: "type" }, 400);
   }

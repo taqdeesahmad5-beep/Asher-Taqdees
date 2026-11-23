@@ -158,16 +158,17 @@
     var localApply = function (b) {
       var d = localBoard(), sc = b.score;
       if (b.type === "result") { d.played++; if (sc >= 7) d.passed++; else d.failed++; }
-      else { d.sigs.unshift({ n: String(b.name).slice(0, 30), s: sc, t: new Date().toISOString().slice(0, 10) }); d.sigs = d.sigs.slice(0, 200); }
+      else { d.sigs.unshift({ n: String(b.name).slice(0, 30), s: sc, t: new Date(Date.now() + 5 * 36e5).toISOString().slice(0, 10) }); d.sigs = d.sigs.slice(0, 200); }
       try { window.localStorage.setItem("quizBoard", JSON.stringify(d)); } catch (e) {}
       return d;
     };
     var api = function (method, body) {
       return fetch("/api/quiz", { method: method, headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined })
-        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (r) { if (r.status === 409) throw "dup"; if (!r.ok) throw 0; return r.json(); })
         .then(function (d) { if (!d || typeof d.played !== "number") throw 0; return d; });
     };
-    var send = function (b) { return api("POST", b).then(function (d) { shared = true; return d; }, function () { shared = false; return localApply(b); }); };
+    var send = function (b) { return api("POST", b).then(function (d) { shared = true; return d; }, function (e) { if (e === "dup") return { dup: true }; shared = false; return localApply(b); }); };
+    var signed = function () { try { return !!window.localStorage.getItem("quizSigned"); } catch (e) { return false; } };
     var paint = function () {
       sBox.innerHTML = '<div class="qstats" aria-label="Quiz results so far"><div><b>' + board.played + '</b>participated</div><div class="ok"><b>' + board.passed + '</b>succeeded</div><div class="no"><b>' + board.failed + '</b>failed</div></div>';
       var n = board.sigs.length;
@@ -220,10 +221,13 @@
         if (!nm) { f.querySelector(".qsign-msg").textContent = "Please type your name first."; return; }
         f.querySelector("button").disabled = true;
         send({ type: "sign", name: nm, score: finalScore }).then(function (d) {
+          if (d.dup) { try { window.localStorage.setItem("quizSigned", "1"); } catch (e) {} f.innerHTML = '<p class="qsign-msg" style="flex:1 0 100%">You have already signed the list. One signature per person.</p>'; return; }
+          try { window.localStorage.setItem("quizSigned", "1"); } catch (e) {}
           take(d); sigOpen = true; paint();
           f.innerHTML = '<p class="qsign-msg" style="flex:1 0 100%">Thanks, ' + esc(nm) + ". Your signature is on the list below.</p>";
         });
       });
+      if (signed()) { f.innerHTML = '<p class="qsign-msg" style="flex:1 0 100%">You have already signed the list. One signature per person.</p>'; }
       card.appendChild(f);
       if (win) { document.getElementById("q-prize").addEventListener("click", prize); prize(); }
     };
